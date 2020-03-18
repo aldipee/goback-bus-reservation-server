@@ -6,6 +6,7 @@ const logger = require('morgan')
 const indexRouter = require('./src/routes/Home')
 const usersRouter = require('./src/routes/Users')
 const authRouter = require('./src/routes/Auth')
+const authMiddleware = require('./src/middleware/Auth')
 const app = express()
 
 app.use(logger('dev'))
@@ -16,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 // Routes
 app.use('/', indexRouter)
-app.use('/users', usersRouter)
+app.use('/users', authMiddleware.validAuthToken, usersRouter)
 app.use('/auth', authRouter)
 
 // catch 404 and forward to error handler

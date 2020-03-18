@@ -20,6 +20,28 @@ const getAllUsersData = () => {
 }
 
 /**
+ * Get user's data from username
+ * @todo Modify the function to accept userId too
+ * @param {string} username
+ * @returns {object} data based on username
+ */
+const getUserData = username => {
+  if (username) {
+    return new Promise((resolve, reject) => {
+      db.query(`SELECT * FROM users WHERE username='${username}'`, (err, result, fields) => {
+        if (!err) {
+          result[0] ? resolve(result[0]) : resolve(false)
+        } else {
+          reject(err)
+        }
+      })
+    })
+  } else {
+    return 'Required username Parameter in getUserData'
+  }
+}
+
+/**
  * Insert new user to database
  * @todo Add Strict rules about username for accepts alphanumeric only
  * @param {string} username Data username from Client
@@ -55,13 +77,16 @@ const insert = (username, password, email, role = 3) => {
 
 const isUsernameExist = username => {
   return new Promise((resolve, reject) => {
-    db.query(`SELECT COUNT(*) AS total FROM users WHERE username='${username}'`, (err, results, field) => {
-      if (!err) {
-        results[0].total ? resolve(true) : resolve(false)
-      } else {
-        reject(err)
+    db.query(
+      `SELECT COUNT(*) AS total FROM users WHERE username='${username}'`,
+      (err, results, field) => {
+        if (!err) {
+          results[0].total ? resolve(true) : resolve(false)
+        } else {
+          reject(err)
+        }
       }
-    })
+    )
   })
 }
 
@@ -106,23 +131,30 @@ const update = (userId, username, password, email) => {
   })
 }
 
-const read = userId => {
-  return new Promise((resolve, reject) => {
-    db.query(`SELECT * FROM users WHERE id='${userId}'`, (err, result, fields) => {
-      if (!err) {
-        result[0] ? resolve({ success: true, data: result[0] }) : resolve({ success: false, data: { message: 'Data not found' } })
-      } else {
-        reject(err)
-      }
-    })
-  })
-}
+/**
+ * Get user's data from user ID
+ * @param {string} userId
+ * @returns {object} data based on userId
+ */
+// const read = userId => {
+//   return new Promise((resolve, reject) => {
+//     db.query(`SELECT * FROM users WHERE id='${userId}'`, (err, result, fields) => {
+//       if (!err) {
+//         result[0]
+//           ? resolve({ success: true, data: result[0] })
+//           : resolve({ success: false, data: { message: 'Data not found' } })
+//       } else {
+//         reject(err)
+//       }
+//     })
+//   })
+// }
 
 module.exports = {
   getAllUsersData,
+  getUserData,
   insert,
   remove,
   update,
-  read,
   isUsernameExist
 }
