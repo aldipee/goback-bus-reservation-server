@@ -1,3 +1,4 @@
 module.exports = {
-  homeMessage: 'Hello'
+  req400: 'Bad Request',
+  req200: 'OK'
 }

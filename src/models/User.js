@@ -87,6 +87,7 @@ const remove = userId => {
  * @todo Add email Valid Verification
  * @todo Add Parameter Valid Checking
  * @todo Add Documentation
+ * @todo Add advance function to update particular field only
  */
 
 const update = (userId, username, password, email) => {
@@ -116,8 +117,6 @@ const read = userId => {
     })
   })
 }
-
-
 
 module.exports = {
   getAllUsersData,
