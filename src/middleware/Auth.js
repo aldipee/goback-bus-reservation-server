@@ -11,6 +11,7 @@ module.exports = {
         token = jwt.verify(token, process.env.AUTH_KEY)
         if (token) {
           // if token valid, then set some basic data to req.user as session
+
           req.user = token
           next()
         } else {

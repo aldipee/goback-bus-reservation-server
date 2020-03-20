@@ -36,7 +36,27 @@ const getAll = () => {
   })
 }
 
+const getDataAgent = userId => {
+  return new Promise((resolve, reject) => {
+    if (!userId) {
+      reject(new Error('Unvalid parameter in getDataAgent'))
+    } else {
+      db.query(
+        `SELECT id,name,created_by,create_at FROM agents WHERE user_id=${userId}`,
+        (err, result, field) => {
+          if (err) {
+            reject(err)
+          } else {
+            result ? resolve(result[0]) : result(false)
+          }
+        }
+      )
+    }
+  })
+}
+
 module.exports = {
   getAll,
+  getDataAgent,
   insert
 }

@@ -5,21 +5,25 @@ module.exports = {
   // get All users data
   allData: async (req, res) => {
     // get all data
-    const results = await UserModel.getAllUsersData()
-    try {
-      // in order to send data to client, we hava to delete some creditial info from the object
-      const data = results.data.map((element, index) => {
-        delete element.password
-        return element
-      })
-      res.status(200).send({ status: 'OK', data })
-    } catch (err) {
-      res.status(500).send({ success: false, err })
+    if (req.user.userRole === 1) {
+      const results = await UserModel.getAllUsersData()
+      try {
+        // in order to send data to client, we hava to delete some creditial info from the object
+        const data = results.data.map((element, index) => {
+          delete element.password
+          return element
+        })
+        res.status(200).send({ status: 'OK', data })
+      } catch (err) {
+        res.status(500).send({ success: false, err })
+      }
+    } else {
+      res.status(403).send({ success: false, message: 'FORBIDEN' })
     }
   },
   // update user data
   update: async (req, res) => {
-    if (req.body) {
+    if (req.body && req.user) {
       // get id from params
       const { id } = req.params
       const { username, password, email } = req.body
@@ -33,10 +37,14 @@ module.exports = {
   },
   // delete user
   delete: async (req, res) => {
-    const { id } = req.params
-    const results = await UserModel.remove(id)
-    results
-      ? res.status(200).send({ status: message.req200, msg: 'Success delete data' })
-      : res.status(401).send({ status: 'err' })
+    if (req.user.userRole === 1) {
+      const { id } = req.params
+      const results = await UserModel.remove(id)
+      results
+        ? res.status(200).send({ status: message.req200, msg: 'Success delete data' })
+        : res.status(401).send({ status: 'err' })
+    } else {
+      res.status(403).send({ status: 403, message: 'FORBIDDEN' })
+    }
   }
 }

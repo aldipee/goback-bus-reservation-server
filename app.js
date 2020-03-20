@@ -9,7 +9,9 @@ const usersRouter = require('./src/routes/Users')
 const authRouter = require('./src/routes/Auth')
 const agentsRouter = require('./src/routes/Agents')
 const routesRouter = require('./src/routes/Route')
-
+const busesRouter = require('./src/routes/Buses')
+const schedulesRouter = require('./src/routes/Schedules')
+const reservationRouter = require('./src/routes/Reservations')
 // Midleware
 const authMiddleware = require('./src/middleware/Auth')
 const app = express()
@@ -26,6 +28,9 @@ app.use('/users', authMiddleware.validAuthToken, usersRouter)
 app.use('/auth', authRouter)
 app.use('/agents', authMiddleware.validAuthToken, agentsRouter)
 app.use('/routes', authMiddleware.validAuthToken, routesRouter)
+app.use('/bus', authMiddleware.validAuthToken, busesRouter)
+app.use('/schedules', authMiddleware.validAuthToken, schedulesRouter)
+app.use('/reservations', authMiddleware.validAuthToken, reservationRouter)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
