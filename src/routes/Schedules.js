@@ -7,19 +7,26 @@ router.get('/', async (req, res) => {
   if (req.user) {
     try {
       console.log(req.query.route)
-      const results = await SchedulesModel.allSchedule(req.query.route)
-      let s
-      let data = results.map(async obj => {
-        const d = await ReservationsModel.getSeats(obj.id, req.query.route)
-        const dsad = { ...obj, d }
-        s += dsad
-        const res = Promise.all(d)
-        return res
-      })
+      // const results = await SchedulesModel.allSchedule(req.query.route)
 
-      data
-        ? res.status(200).send({ status: 'OK', data })
-        : res.status(201).send({ status: 'OK', message: 'Bus not found' })
+      // Create general function for Promise all
+      const fetchDataWithSeat = async () => {
+        const results = await SchedulesModel.allSchedule(req.query.route)
+        const promisess = results.map(async obj => {
+          // Get Seat
+          const seatsData = await ReservationsModel.getSeats(obj.id, req.query.route)
+          return { ...obj, seatsInfo: seatsData }
+        })
+
+        // Wait until all promises resolve retrive the data form seats
+        const promiseDone = Promise.all(promisess)
+        return promiseDone
+      }
+      fetchDataWithSeat().then(data => {
+        data
+          ? res.status(200).send({ status: 'OK', data })
+          : res.status(201).send({ status: 'OK', message: 'Bus not found' })
+      })
     } catch (error) {
       console.log(error)
       res.send({ error })
