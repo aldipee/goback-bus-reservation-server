@@ -1,5 +1,10 @@
 const db = require('../utils/db')
 
+/**
+ * This is for get price by on idSchedule
+ * This function is being before user create reservations on Reservation controller
+ * @param {number} idSchedule 
+ */
 const getPriceByIdSchedule = (idSchedule) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT price.price FROM price JOIN schedules ON price.route_id  = schedules.route_id 
@@ -14,8 +19,6 @@ const getPriceByIdSchedule = (idSchedule) => {
   })
 }
 
-
-
 /**
  * Create User's Reservation
  * @param {*} userId  User ID
@@ -23,12 +26,14 @@ const getPriceByIdSchedule = (idSchedule) => {
  * @param {*} userIdType Type of Id Number
  * @param {*} seatNumber Seat Number
  * @param {*} scheduleId Schedule Id
+ * @param {number} price 
  */
 
 const insert = (userId, userIdNumber, userIdType, seatNumber, scheduleId, price) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `INSERT INTO reservations (user_id, user_id_number, user_id_type, seat_number, schedule_id, total_price) VALUES ('${userId}','${userIdNumber}','${userIdType}','${seatNumber}','${scheduleId}', '${price}')`,
+      `INSERT INTO reservations (user_id, user_id_number, user_id_type, seat_number, schedule_id, total_price) 
+      VALUES ('${userId}','${userIdNumber}','${userIdType}','${seatNumber}','${scheduleId}', '${price}')`,
       (err, result, field) => {
         if (err) {
           reject(err)
@@ -43,6 +48,7 @@ const insert = (userId, userIdNumber, userIdType, seatNumber, scheduleId, price)
  * Get info of seats on bus based on Schedule id and Route id
  * @param {number} idSchedule
  * @param {number} idRoute
+ * @return {array} of avaiable seats
  */
 const getSeats = (idSchedule, route) => {
   return new Promise((resolve, reject) => {
@@ -74,7 +80,12 @@ const getSeats = (idSchedule, route) => {
     })
   })
 }
-
+/**
+ * This is for get all reservation by route
+ * normaly only super admin can view this
+ * 
+ * @param {*} routeId 
+ */
 const getReservationByRoute = async routeId => {
   return new Promise((resolve, reject) => {
     const query = `SELECT reservations.id, reservations.user_id_number, reservations.user_id_type, reservations.seat_number, reservations.cancel, users.username, users.email, schedules.time, routes.origin, routes.destination, routes.distance, buses.name, buses.total_seat, agents.name, price.price FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id JOIN agents ON schedules.agent_id = agents.id JOIN price ON price.route_id = schedules.route_id AND price.agent_id = agents.id WHERE schedules.route_id = ${routeId}`
@@ -88,6 +99,10 @@ const getReservationByRoute = async routeId => {
   })
 }
 
+/**
+ * This ione is being called nowhere
+ * @param {*} userId 
+ */
 const getUserReservation = userId => {
   //   const query = `SELECT * FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id JOIN agents ON agents.id = schedules.agent_id WHERE reservations.user_id = 14`
   const query2 = `SELECT reservations.id, reservations.user_id_number, reservations.user_id_type, 
@@ -106,7 +121,13 @@ const getUserReservation = userId => {
   })
 }
 
-
+/**
+ * This function for get all Reservation details
+ * And being called on Reservation Controller after the reservations inserted
+ * 
+ * @param {*} idReservation 
+ * @returns {object} of reservations details
+ */
 const reservationSummary = (idReservation) => {
   return new Promise((resolve, reject) => {
     if (idReservation) {
@@ -130,8 +151,6 @@ const reservationSummary = (idReservation) => {
   })
 }
 
-
-// getReservationByRoute(9)
 module.exports = {
   insert,
   getUserReservation,

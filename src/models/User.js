@@ -20,6 +20,30 @@ const getAllUsersData = () => {
 }
 
 /**
+ * Get User Profile Detail based on Primary user ID
+ * @param {numer} userId 
+ * @returns {object} of Profile data
+ */
+const getUserDetails = userId => {
+  return new Promise((resolve, reject) => {
+    if (userId) {
+      const query = `SELECT fullName, balance, bod, gender, phoneNumber, fullAddress
+       FROM userdetails WHERE userId = ${userId}`
+      db.query(query, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          result.length ? resolve(result[0]) : reject(new Error('Profile not found'))
+        }
+      })
+    } else {
+      reject(new Error('Invald parameter'))
+    }
+  })
+}
+
+
+/**
  * Get user's data from username
  * @todo Modify the function to accept userId too
  * @param {string} username
@@ -190,5 +214,6 @@ module.exports = {
   update,
   isUsernameExist,
   insertUserDetails,
-  isProfileCompleted
+  isProfileCompleted,
+  getUserDetails
 }
