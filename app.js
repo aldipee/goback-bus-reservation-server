@@ -12,6 +12,7 @@ const routesRouter = require('./src/routes/Route')
 const busesRouter = require('./src/routes/Buses')
 const schedulesRouter = require('./src/routes/Schedules')
 const reservationRouter = require('./src/routes/Reservations')
+
 // Midleware
 const authMiddleware = require('./src/middleware/Auth')
 const app = express()
@@ -20,7 +21,7 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(process.env.PUBLIC_URL, express.static(path.join(__dirname, process.env.PUBLIC_PATH)))
 
 // Routes
 app.use('/', indexRouter)

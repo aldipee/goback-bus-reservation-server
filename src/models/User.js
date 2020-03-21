@@ -21,13 +21,13 @@ const getAllUsersData = () => {
 
 /**
  * Get User Profile Detail based on Primary user ID
- * @param {numer} userId 
+ * @param {numer} userId
  * @returns {object} of Profile data
  */
 const getUserDetails = userId => {
   return new Promise((resolve, reject) => {
     if (userId) {
-      const query = `SELECT fullName, balance, bod, gender, phoneNumber, fullAddress
+      const query = `SELECT fullName, balance, bod, gender, phoneNumber, fullAddress, avatar
        FROM userdetails WHERE userId = ${userId}`
       db.query(query, (err, result) => {
         if (err) {
@@ -41,7 +41,6 @@ const getUserDetails = userId => {
     }
   })
 }
-
 
 /**
  * Get user's data from username
@@ -101,16 +100,13 @@ const insert = (username, password, email, role = 3) => {
 
 const isUsernameExist = username => {
   return new Promise((resolve, reject) => {
-    db.query(
-      `SELECT COUNT(*) AS total FROM users WHERE username='${username}'`,
-      (err, results, field) => {
-        if (!err) {
-          results[0].total ? resolve(true) : resolve(false)
-        } else {
-          reject(err)
-        }
+    db.query(`SELECT COUNT(*) AS total FROM users WHERE username='${username}'`, (err, results, field) => {
+      if (!err) {
+        results[0].total ? resolve(true) : resolve(false)
+      } else {
+        reject(err)
       }
-    )
+    })
   })
 }
 
@@ -157,22 +153,22 @@ const update = (userId, username, password, email) => {
 
 /**
  * Insert user data
- * @param {number} userId  from user sessions 
- * @param {string} fullName 
+ * @param {number} userId  from user sessions
+ * @param {string} fullName
  * @param {date} bod Date format (YYYY-MM-DD)
  * @param {number} gender (0 for male, and 1 for female)
  * @param {string} phoneNumber Default null
- * @param {string} fullAddress Default 
- * @param {number} balance 
+ * @param {string} fullAddress Default
+ * @param {number} balance
  */
-const insertUserDetails = (userId, fullName, bod, gender, phoneNumber, fullAddress, balance = 0) => {
+const insertUserDetails = (userId, fullName, bod, gender, phoneNumber, fullAddress, balance = 0, picture) => {
   return new Promise((resolve, reject) => {
     if (userId) {
       // Convert to gender to string
       gender = parseInt(gender) ? 'female' : 'male'
 
-      const query = `INSERT INTO userdetails (userId, fullName, bod, gender, phoneNumber, fullAddress, balance) 
-      VALUES ('${userId}','${fullName}','${bod}','${gender}','${phoneNumber}','${fullAddress}','${balance}')
+      const query = `INSERT INTO userdetails (userId, fullName, bod, gender, phoneNumber, fullAddress, balance, avatar) 
+      VALUES ('${userId}','${fullName}','${bod}','${gender}','${phoneNumber}','${fullAddress}','${balance}', '${picture}')
       `
       db.query(query, (err, results, field) => {
         if (!err) {
@@ -187,7 +183,7 @@ const insertUserDetails = (userId, fullName, bod, gender, phoneNumber, fullAddre
   })
 }
 
-const isProfileCompleted = (userId) => {
+const isProfileCompleted = userId => {
   return new Promise((resolve, reject) => {
     if (userId) {
       const query = `SELECT COUNT(*) AS total FROM userdetails WHERE userId='${userId}'`
@@ -204,8 +200,7 @@ const isProfileCompleted = (userId) => {
   })
 }
 
-
-//insertUserDetails(1, 'Aldi Pranata', '2000-06-14', 'male', '6282185142048', 'Jl. Suka sari 3 No.53, Kota Bogor', 90000)
+// insertUserDetails(1, 'Aldi Pranata', '2000-06-14', 'male', '6282185142048', 'Jl. Suka sari 3 No.53, Kota Bogor', 90000)
 module.exports = {
   getAllUsersData,
   getUserData,

@@ -7,24 +7,22 @@ router.get('/', async (req, res) => {
   // Check if there is sessions
   if (req.query.route || (req.query.origin && req.query.destination)) {
     try {
-      let route = {
+      const route = {
         idRoute: req.query.route || 0,
         originCode: req.query.origin,
         destinationCode: req.query.destination
       }
 
-      let { page, date, sortBy, sort, dest, orig, limit } = req.query
+      let { page, date, sortBy, sort, limit } = req.query
       page = parseInt(page) || 1
       limit = parseInt(limit) || 5
 
       // Sort by time, or price, or id
-      key = sortBy
-      value = sort
+      const key = sortBy
+      const value = sort
       sort = (sort && { key, value }) || { key: 'id', value: 1 }
 
-
       const conditions = { page, perPage: limit, sort }
-
 
       // const results = await SchedulesModel.allSchedule(req.query.route)
       // Create general function for Promise all
@@ -54,9 +52,7 @@ router.get('/', async (req, res) => {
           return promiseDone
         } else {
           // if schedules unavaiable
-          res
-            .status(200)
-            .send({ status: 'OK', message: 'Bus not found, no schedules for that route' })
+          res.status(200).send({ status: 'OK', message: 'Bus not found, no schedules for that route' })
         }
         // Wait until all promises resolve retrive the data form seats
       }

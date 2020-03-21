@@ -3,9 +3,9 @@ const db = require('../utils/db')
 /**
  * This is for get price by on idSchedule
  * This function is being before user create reservations on Reservation controller
- * @param {number} idSchedule 
+ * @param {number} idSchedule
  */
-const getPriceByIdSchedule = (idSchedule) => {
+const getPriceByIdSchedule = idSchedule => {
   return new Promise((resolve, reject) => {
     const query = `SELECT price.price FROM price JOIN schedules ON price.route_id  = schedules.route_id 
     AND price.agent_id = schedules.agent_id WHERE schedules.id = ${idSchedule}`
@@ -26,7 +26,7 @@ const getPriceByIdSchedule = (idSchedule) => {
  * @param {*} userIdType Type of Id Number
  * @param {*} seatNumber Seat Number
  * @param {*} scheduleId Schedule Id
- * @param {number} price 
+ * @param {number} price
  */
 
 const insert = (userId, userIdNumber, userIdType, seatNumber, scheduleId, price) => {
@@ -56,8 +56,12 @@ const getSeats = (idSchedule, route) => {
     reservations JOIN schedules ON reservations.schedule_id = schedules.id 
     JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id WHERE
     schedules.id = ${idSchedule} AND
-    ${route.idRoute ? `schedules.route_id = ${route.idRoute}` : `routes.origin_code = '${route.originCode}' 
-    AND routes.destination_code = '${route.destinationCode}`}'`
+    ${
+      route.idRoute
+        ? `schedules.route_id = ${route.idRoute}`
+        : `routes.origin_code = '${route.originCode}' 
+    AND routes.destination_code = '${route.destinationCode}`
+    }'`
     db.query(query, (err, results, field) => {
       if (err) {
         console.log('getSeats Rreservations', err)
@@ -68,9 +72,9 @@ const getSeats = (idSchedule, route) => {
           results.map((data, index) => {
             seatsBooked.push(data.seat_number)
           })
-          const seatsAvailable = [
-            ...Array.from({ length: results[0].total_seat }, (v, k) => k + 1)
-          ].filter(seat => !seatsBooked.includes(seat))
+          const seatsAvailable = [...Array.from({ length: results[0].total_seat }, (v, k) => k + 1)].filter(
+            seat => !seatsBooked.includes(seat)
+          )
 
           resolve({ seatsBooked, seatsAvailable })
         } else {
@@ -83,8 +87,8 @@ const getSeats = (idSchedule, route) => {
 /**
  * This is for get all reservation by route
  * normaly only super admin can view this
- * 
- * @param {*} routeId 
+ *
+ * @param {*} routeId
  */
 const getReservationByRoute = async routeId => {
   return new Promise((resolve, reject) => {
@@ -101,7 +105,7 @@ const getReservationByRoute = async routeId => {
 
 /**
  * This ione is being called nowhere
- * @param {*} userId 
+ * @param {*} userId
  */
 const getUserReservation = userId => {
   //   const query = `SELECT * FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id JOIN agents ON agents.id = schedules.agent_id WHERE reservations.user_id = 14`
@@ -124,11 +128,11 @@ const getUserReservation = userId => {
 /**
  * This function for get all Reservation details
  * And being called on Reservation Controller after the reservations inserted
- * 
- * @param {*} idReservation 
+ *
+ * @param {*} idReservation
  * @returns {object} of reservations details
  */
-const reservationSummary = (idReservation) => {
+const reservationSummary = idReservation => {
   return new Promise((resolve, reject) => {
     if (idReservation) {
       const query = `SELECT reservations.user_id as booked_by_userid, userdetails.fullName as booked_by_name, schedules.time as schedule_time, reservations.schedule_id, reservations.user_id_number as passenger_id , 

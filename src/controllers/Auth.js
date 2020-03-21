@@ -37,6 +37,7 @@ module.exports = {
       } else {
         // otherwise, if username avaiable, get some credintials info form that user
         const userData = await UsersModel.getUserData(username)
+
         if (userData.is_verified) {
           // if user verified, then countinue to check wether password correct or not
           if (bcrypt.compareSync(password, userData.password)) {
@@ -78,7 +79,18 @@ module.exports = {
                 { expiresIn: '55m' }
               )
             }
-            res.status(200).send({ status: 'OK', msg: `Welcome back ${userData.username}`, token })
+            if (await UsersModel.isProfileCompleted(userData.id)) {
+              const data = await UsersModel.getUserDetails(userData.id)
+              data.avatar = `//${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${data.avatar}`
+              res.status(200).send({ status: 'OK', msg: `Welcome back ${data.fullName}`, token, profileData: data })
+            } else {
+              res.status(200).send({
+                status: 'OK',
+                msg: `Welcome back ${userData.username}`,
+                token,
+                profileData: 'Your profile is not completed. You would not be able to make reservation'
+              })
+            }
           } else {
             res.status(400).send({ status: 'ERR', msg: 'Invalid username or passsword' })
           }

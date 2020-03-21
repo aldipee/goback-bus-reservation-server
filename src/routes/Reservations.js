@@ -32,24 +32,26 @@ router.post('/purchase', async (req, res) => {
         const price = await ReservationModel.getPriceByIdSchedule(scheduleId)
         const userBalanace = await UserModel.getUserDetails(userId)
         if (userBalanace.balance > price) {
-          const result = await ReservationModel.insert(
-            userId,
-            userIdNumber,
-            userIdType,
-            seatNumber,
-            scheduleId,
-            price
-          )
+          const result = await ReservationModel.insert(userId, userIdNumber, userIdType, seatNumber, scheduleId, price)
           if (result) {
             const summary = await ReservationModel.reservationSummary(result.insertId)
-            res.status(200).send({ status: 'OK', message: 'Reservation success!', summary, currentBalance: userBalanace.balance - price })
+            res.status(200).send({
+              status: 'OK',
+              message: 'Reservation success!',
+              summary,
+              currentBalance: userBalanace.balance - price
+            })
           } else {
             res.status(400).send({ status: 401, err: 'BAD REQUEST' })
           }
         } else {
-          res.status(200).send({ status: 'FAILED', message: 'Your balance is not enought', data: userBalanace, reservationsPrice: price })
+          res.status(200).send({
+            status: 'FAILED',
+            message: 'Your balance is not enought',
+            data: userBalanace,
+            reservationsPrice: price
+          })
         }
-
       } else {
         res.status(400).send({ status: 401, err: 'BAD REQUEST' })
       }
