@@ -34,9 +34,13 @@ router.post('/purchase', async (req, res) => {
         seatNumber,
         scheduleId
       )
-      result
-        ? res.status(200).send({ status: 'OK', message: 'Reservation success!' })
-        : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+      if (result) {
+        const summary = await ReservationModel.reservationSummary(result.insertId)
+        res.status(200).send({ status: 'OK', message: 'Reservation success!', summary })
+      } else {
+        res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+      }
+
     } else {
       res.status(400).send({ status: 401, err: 'BAD REQUEST' })
     }

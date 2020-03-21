@@ -75,7 +75,7 @@ module.exports = {
                   username: userData.username
                 },
                 process.env.AUTH_KEY,
-                { expiresIn: '15m' }
+                { expiresIn: '55m' }
               )
             }
             res.status(200).send({ status: 'OK', msg: `Welcome back ${userData.username}`, token })

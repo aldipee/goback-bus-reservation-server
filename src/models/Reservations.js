@@ -28,12 +28,17 @@ const insert = (userId, userIdNumber, userIdType, seatNumber, scheduleId) => {
  * @param {number} idSchedule
  * @param {number} idRoute
  */
-const getSeats = (idSchedule, idRoute) => {
+const getSeats = (idSchedule, route) => {
   return new Promise((resolve, reject) => {
-    const query = `SELECT reservations.id, buses.total_seat, schedules.route_id,reservations.seat_number FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id JOIN buses ON buses.id = schedules.bus_id WHERE schedules.id = ${idSchedule} AND schedules.route_id = ${idRoute}`
+    const query = `SELECT reservations.id, buses.total_seat, schedules.route_id,reservations.seat_number FROM 
+    reservations JOIN schedules ON reservations.schedule_id = schedules.id 
+    JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id WHERE
+    schedules.id = ${idSchedule} AND
+    ${route.idRoute ? `schedules.route_id = ${route.idRoute}` : `routes.origin_code = '${route.originCode}' 
+    AND routes.destination_code = '${route.destinationCode}`}'`
     db.query(query, (err, results, field) => {
       if (err) {
-        console.log(err)
+        console.log('getSeats Rreservations', err)
         reject(err)
       } else {
         if (results.length) {
@@ -78,11 +83,37 @@ const getUserReservation = userId => {
     }
   })
 }
-console.log()
+
+
+const reservationSummary = (idReservation) => {
+  return new Promise((resolve, reject) => {
+    if (idReservation) {
+      const query = `SELECT reservations.user_id, schedules.time, reservations.schedule_id, reservations.user_id_number , 
+    reservations.user_id_type, reservations.seat_number, reservations.cancel, routes.origin, routes.origin_code, 
+    routes.destination, routes.destination_code, routes.id, routes.distance, buses.name, buses.total_seat, 
+    agents.name, schedules.agent_id  FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id 
+    JOIN routes ON routes.id = schedules.route_id JOIN  buses ON schedules.bus_id = buses.id 
+    JOIN agents ON schedules.agent_id = schedules.agent_id  
+    WHERE reservations.id = ${idReservation} AND agents.id = schedules.agent_id`
+      db.query(query, (err, results, field) => {
+        if (!err) {
+          results.length ? resolve(results[0]) : resolve({ message: 'Data not found' })
+        } else {
+          console.error(err)
+        }
+      })
+    } else {
+      reject(new Error('reservationSummary required paramater'))
+    }
+  })
+}
+
+
 // getReservationByRoute(9)
 module.exports = {
   insert,
   getUserReservation,
   getSeats,
-  getReservationByRoute
+  getReservationByRoute,
+  reservationSummary
 }
