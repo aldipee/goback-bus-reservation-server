@@ -87,5 +87,15 @@ module.exports = {
         }
       }
     }
+  },
+  logout: (req, res) => {
+    if (req.user) {
+      console.log(req.user)
+      delete req.user
+      res.send({ status: 'OK', message: 'You are logout!' })
+      console.log(req.user)
+    } else {
+      res.send({ status: 'OK', message: 'You already logout' })
+    }
   }
 }

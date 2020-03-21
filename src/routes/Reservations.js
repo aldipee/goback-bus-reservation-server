@@ -29,12 +29,14 @@ router.post('/purchase', async (req, res) => {
       if (req.body) {
         const { userId } = req.user
         const { userIdNumber, userIdType, seatNumber, scheduleId } = req.body
+        const price = await ReservationModel.getPriceByIdSchedule(scheduleId)
         const result = await ReservationModel.insert(
           userId,
           userIdNumber,
           userIdType,
           seatNumber,
-          scheduleId
+          scheduleId,
+          price
         )
         if (result) {
           const summary = await ReservationModel.reservationSummary(result.insertId)

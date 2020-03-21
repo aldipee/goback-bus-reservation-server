@@ -1,5 +1,21 @@
 const db = require('../utils/db')
 
+const getPriceByIdSchedule = (idSchedule) => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT price.price FROM price JOIN schedules ON price.route_id  = schedules.route_id 
+    AND price.agent_id = schedules.agent_id WHERE schedules.id = ${idSchedule}`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results[0].price ? resolve(results[0].price) : resolve(0)
+      }
+    })
+  })
+}
+
+
+
 /**
  * Create User's Reservation
  * @param {*} userId  User ID
@@ -9,10 +25,10 @@ const db = require('../utils/db')
  * @param {*} scheduleId Schedule Id
  */
 
-const insert = (userId, userIdNumber, userIdType, seatNumber, scheduleId) => {
+const insert = (userId, userIdNumber, userIdType, seatNumber, scheduleId, price) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `INSERT INTO reservations (user_id, user_id_number, user_id_type, seat_number, schedule_id) VALUES ('${userId}','${userIdNumber}','${userIdType}','${seatNumber}','${scheduleId}')`,
+      `INSERT INTO reservations (user_id, user_id_number, user_id_type, seat_number, schedule_id, total_price) VALUES ('${userId}','${userIdNumber}','${userIdType}','${seatNumber}','${scheduleId}', '${price}')`,
       (err, result, field) => {
         if (err) {
           reject(err)
@@ -74,7 +90,13 @@ const getReservationByRoute = async routeId => {
 
 const getUserReservation = userId => {
   //   const query = `SELECT * FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id JOIN agents ON agents.id = schedules.agent_id WHERE reservations.user_id = 14`
-  const query2 = `SELECT reservations.id, reservations.user_id_number, reservations.user_id_type, reservations.seat_number, reservations.cancel, users.username, users.email, schedules.time, routes.origin, routes.destination, routes.distance, buses.name, buses.total_seat, agents.name, price.price FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id JOIN agents ON schedules.agent_id = agents.id JOIN price ON price.route_id = schedules.route_id AND price.agent_id = agents.id WHERE reservations.user_id = ${userId}`
+  const query2 = `SELECT reservations.id, reservations.user_id_number, reservations.user_id_type, 
+  reservations.seat_number, reservations.cancel, users.username, users.email, schedules.time, routes.origin,
+   routes.destination, routes.distance, buses.name, buses.total_seat, agents.name, price.price FROM 
+   reservations JOIN schedules ON reservations.schedule_id = schedules.id 
+   JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON 
+   routes.id = schedules.route_id JOIN agents ON schedules.agent_id = agents.id 
+   JOIN price ON price.route_id = schedules.route_id AND price.agent_id = agents.id WHERE reservations.user_id = ${userId}`
   db.query(query2, (err, result, field) => {
     if (err) {
       console.log(err)
@@ -91,9 +113,9 @@ const reservationSummary = (idReservation) => {
       const query = `SELECT reservations.user_id as booked_by_userid, userdetails.fullName as booked_by_name, schedules.time as schedule_time, reservations.schedule_id, reservations.user_id_number as passenger_id , 
     reservations.user_id_type as passenger_id_type, reservations.seat_number, reservations.cancel, routes.origin, routes.origin_code, 
     routes.destination, routes.destination_code, routes.id as route_id, routes.distance, buses.name as bus_name, buses.total_seat, 
-    agents.name as travel_name, schedules.agent_id as travel_id  FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id 
+    agents.name as travel_name, schedules.agent_id as travel_id, price.price as totalPrice FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id 
     JOIN routes ON routes.id = schedules.route_id JOIN  buses ON schedules.bus_id = buses.id JOIN userdetails ON reservations.user_id = userdetails.userId
-    JOIN agents ON schedules.agent_id = schedules.agent_id  
+    JOIN agents ON schedules.agent_id = schedules.agent_id  JOIN price ON price.route_id = schedules.route_id AND price.agent_id = agents.id
     WHERE reservations.id = ${idReservation} AND agents.id = schedules.agent_id`
       db.query(query, (err, results, field) => {
         if (!err) {
@@ -115,5 +137,6 @@ module.exports = {
   getUserReservation,
   getSeats,
   getReservationByRoute,
+  getPriceByIdSchedule,
   reservationSummary
 }
