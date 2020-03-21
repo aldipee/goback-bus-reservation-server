@@ -88,11 +88,11 @@ const getUserReservation = userId => {
 const reservationSummary = (idReservation) => {
   return new Promise((resolve, reject) => {
     if (idReservation) {
-      const query = `SELECT reservations.user_id, schedules.time, reservations.schedule_id, reservations.user_id_number , 
-    reservations.user_id_type, reservations.seat_number, reservations.cancel, routes.origin, routes.origin_code, 
-    routes.destination, routes.destination_code, routes.id, routes.distance, buses.name, buses.total_seat, 
-    agents.name, schedules.agent_id  FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id 
-    JOIN routes ON routes.id = schedules.route_id JOIN  buses ON schedules.bus_id = buses.id 
+      const query = `SELECT reservations.user_id as booked_by_userid, userdetails.fullName as booked_by_name, schedules.time as schedule_time, reservations.schedule_id, reservations.user_id_number as passenger_id , 
+    reservations.user_id_type as passenger_id_type, reservations.seat_number, reservations.cancel, routes.origin, routes.origin_code, 
+    routes.destination, routes.destination_code, routes.id as route_id, routes.distance, buses.name as bus_name, buses.total_seat, 
+    agents.name as travel_name, schedules.agent_id as travel_id  FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id 
+    JOIN routes ON routes.id = schedules.route_id JOIN  buses ON schedules.bus_id = buses.id JOIN userdetails ON reservations.user_id = userdetails.userId
     JOIN agents ON schedules.agent_id = schedules.agent_id  
     WHERE reservations.id = ${idReservation} AND agents.id = schedules.agent_id`
       db.query(query, (err, results, field) => {

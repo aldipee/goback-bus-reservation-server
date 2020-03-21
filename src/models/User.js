@@ -132,29 +132,63 @@ const update = (userId, username, password, email) => {
 }
 
 /**
- * Get user's data from user ID
- * @param {string} userId
- * @returns {object} data based on userId
+ * Insert user data
+ * @param {number} userId  from user sessions 
+ * @param {string} fullName 
+ * @param {date} bod Date format (YYYY-MM-DD)
+ * @param {number} gender (0 for male, and 1 for female)
+ * @param {string} phoneNumber Default null
+ * @param {string} fullAddress Default 
+ * @param {number} balance 
  */
-// const read = userId => {
-//   return new Promise((resolve, reject) => {
-//     db.query(`SELECT * FROM users WHERE id='${userId}'`, (err, result, fields) => {
-//       if (!err) {
-//         result[0]
-//           ? resolve({ success: true, data: result[0] })
-//           : resolve({ success: false, data: { message: 'Data not found' } })
-//       } else {
-//         reject(err)
-//       }
-//     })
-//   })
-// }
+const insertUserDetails = (userId, fullName, bod, gender, phoneNumber, fullAddress, balance = 0) => {
+  return new Promise((resolve, reject) => {
+    if (userId) {
+      // Convert to gender to string
+      gender = parseInt(gender) ? 'female' : 'male'
 
+      const query = `INSERT INTO userdetails (userId, fullName, bod, gender, phoneNumber, fullAddress, balance) 
+      VALUES ('${userId}','${fullName}','${bod}','${gender}','${phoneNumber}','${fullAddress}','${balance}')
+      `
+      db.query(query, (err, results, field) => {
+        if (!err) {
+          results.insertId ? resolve(true) : resolve(false)
+        } else {
+          reject(err)
+        }
+      })
+    } else {
+      reject(new Error('Parameter incorrect'))
+    }
+  })
+}
+
+const isProfileCompleted = (userId) => {
+  return new Promise((resolve, reject) => {
+    if (userId) {
+      const query = `SELECT COUNT(*) AS total FROM userdetails WHERE userId='${userId}'`
+      db.query(query, (err, results) => {
+        if (!err) {
+          results[0].total ? resolve(true) : resolve(false)
+        } else {
+          reject(err)
+        }
+      })
+    } else {
+      reject(new Error('Incorrect parameter for isProfileCompleted method'))
+    }
+  })
+}
+
+
+//insertUserDetails(1, 'Aldi Pranata', '2000-06-14', 'male', '6282185142048', 'Jl. Suka sari 3 No.53, Kota Bogor', 90000)
 module.exports = {
   getAllUsersData,
   getUserData,
   insert,
   remove,
   update,
-  isUsernameExist
+  isUsernameExist,
+  insertUserDetails,
+  isProfileCompleted
 }
