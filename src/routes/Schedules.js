@@ -3,6 +3,7 @@ const authMiddleware = require('../middleware/Auth')
 const SchedulesModel = require('../models/Schedules')
 const ReservationsModel = require('../models/Reservations')
 
+// All Schedules [public]
 router.get('/', async (req, res) => {
   // Check if there is sessions
   if (req.query.route || (req.query.origin && req.query.destination)) {
@@ -81,22 +82,85 @@ router.get('/', async (req, res) => {
     res.status(400).send({ status: 'UNAUTHORIZATION', statusCode: 400 })
   }
 })
+// New Schedules
 router.post('/', authMiddleware.validAuthToken, async (req, res) => {
-  console.log(req.user)
   if ((req.user && req.user.userRole === 2) || req.user.userRole === 1) {
     // console.log(`USER SESSIONS : ${req.user}`)
     // console.log(`USER BODY : ${req.body}`)
     try {
       const { userId, agentId } = req.user
-      const { time, routeId, busId } = req.body
-      const results = await SchedulesModel.create(time, routeId, busId, agentId, userId)
-      results ? res.status(200).send({ status: 'OK', message: 'New Schedule Inserted' }) : res.status(500).send({ status: 'ERR', statusCode: 500 })
+      const { time, routeId, busId, date } = req.body
+      date = date || new Date().toISOString().slice(0, 10)
+      const results = await SchedulesModel.create(time, routeId, busId, agentId, userId, date)
+      results
+        ? res.status(200).send({ status: 'OK', message: 'New Schedule Inserted' })
+        : res.status(500).send({ status: 'ERR', statusCode: 500 })
     } catch (error) {
       console.log(error)
       res.send({ error })
     }
   } else {
     res.status(400).send({ status: 'UNAUTHORIZATION', statusCode: 400 })
+  }
+})
+//Update shedules
+router.patch('/:idSchedule', authMiddleware.validAuthToken, async (req, res) => {
+  if (req.user.userRole === 2) {
+    try {
+      const { idSchedule } = req.params
+      const prevData = await SchedulesModel.getSchedulesById(idSchedule)
+      const data = {
+        time: req.body.time || prevData.time,
+        date: req.body.date || prevData.date,
+        route_id: req.body.route_id || prevData.route_id,
+        bus_id: req.body.bus_id || prevData.bus_id
+      }
+      const result = await SchedulesModel.update(idSchedule, data)
+      result
+        ? res.status(200).send({ status: 'OK', message: 'Schedules updated' })
+        : res.status(404).send({ status: 'FAILED', message: 'Schedules NOT FOUND' })
+    } catch (error) {
+      console.log(error, 'THIS ERRO COMES FROM SCHEDULES ROUTER')
+    }
+  } else {
+    res.status(401).send({ status: 'FORBIDDEN' })
+  }
+})
+
+router.post('/price', authMiddleware.validAuthToken, async (req, res) => {
+  console.log(req.user)
+  if (req.user.userRole === 2) {
+    try {
+      const { routeId, price } = req.body
+      const { agentId } = req.user
+      const isPriceAlreadySet = await SchedulesModel.isPriceAlreadySet(routeId, agentId)
+      if (!isPriceAlreadySet) {
+        const result = await SchedulesModel.setPrice(routeId, price, agentId)
+        result
+          ? res.status(200).send({ status: 'OK', message: 'Price Added' })
+          : res.status(400).send({ status: 'FAILED', message: 'BAD REQUEST' })
+      } else {
+        res.status(400).send({ status: 'FAILED', message: 'PRICE ALREADY SET' })
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  } else {
+    res.status(401).send({ status: 'FORIBIDDEN' })
+  }
+})
+router.patch('/price/:id', authMiddleware.validAuthToken, async (req, res) => {
+  if (req.user.userRole === 2) {
+    try {
+      const { id } = req.params
+      const { price } = req.body
+      const result = await SchedulesModel.updatePriceById(id, price)
+      result
+        ? res.status(200).send({ status: 'OK', message: 'Price Updated' })
+        : res.status(400).send({ status: 'FAILED', message: 'BAD REQUEST' })
+    } catch (error) {
+      res.status(500).send({ status: 'ERRR', error })
+    }
   }
 })
 

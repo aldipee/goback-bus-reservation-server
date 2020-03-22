@@ -10,11 +10,12 @@ const db = require('../utils/db')
  * @returns {boolean}
  */
 
-const create = (time, routeId, busId, agentId, createdBy) => {
+const create = (time, routeId, busId, agentId, createdBy, date) => {
   if (time && routeId && busId && agentId && createdBy) {
     return new Promise((resolve, reject) => {
       db.query(
-        `INSERT INTO schedules (time, route_id, bus_id, agent_id, created_by) VALUES('${time}','${routeId}','${busId}','${agentId}','${createdBy}')`,
+        `INSERT INTO schedules (time, route_id, bus_id, agent_id, created_by, date) 
+        VALUES('${time}','${routeId}','${busId}','${agentId}','${createdBy}','${date}')`,
         (err, results, field) => {
           if (err) {
             reject(err)
@@ -79,8 +80,80 @@ const totalSchedule = (route, date) => {
   })
 }
 
+const update = (idSchedules, agentId, objData) => {
+  return new Promise((resolve, reject) => {
+    const { time, route_id, date, bus_id } = objData
+    const query = `UPDATE schedules SET time = '${time}', route_id '${route_id}', date ='${date}', bus_id = '${bus_id}' 
+    WHERE id = '${idSchedules}' AND agent_id ='${agentId}'`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.changedRows ? resolve(true) : resolve(false)
+      }
+    })
+  })
+}
+
+const getSchedulesById = idSchedules => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * FROM schedules WHERE id = '${idSchedules}'`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.length ? resolve(results[0]) : resolve(false)
+      }
+    })
+  })
+}
+
+const setPrice = (routeId, price, agentId) => {
+  return new Promise((resolve, reject) => {
+    const query = `INSERT INTO price (route_id, price, agent_id) VALUES ('${routeId}', '${price}', '${agentId}')`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.insertId ? resolve(true) : resolve(false)
+      }
+    })
+  })
+}
+
+const isPriceAlreadySet = (routeId, agentId) => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT COUNT(*) as total FROM price WHERE route_id = '${routeId}' AND agent_id= '${agentId}'`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results[0].total ? resolve(true) : resolve(false)
+      }
+    })
+  })
+}
+
+const updatePriceById = (idPrice, price) => {
+  return new Promise((resolve, reject) => {
+    const query = `UPDATE price SET price = '${price}' WHERE id='${idPrice}'`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.changedRows ? resolve(true) : resolve(false)
+      }
+    })
+  })
+}
+
 module.exports = {
   create,
   allSchedule,
-  totalSchedule
+  totalSchedule,
+  getSchedulesById,
+  update,
+  setPrice,
+  isPriceAlreadySet,
+  updatePriceById
 }
