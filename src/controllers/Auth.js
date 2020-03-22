@@ -1,5 +1,6 @@
 const UsersModel = require('../models/User')
 const AgentsModel = require('../models/Agents')
+const ReservationModel = require('../models/Reservations')
 
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -83,8 +84,17 @@ module.exports = {
             }
             if (await UsersModel.isProfileCompleted(userData.id)) {
               const data = await UsersModel.getUserDetails(userData.id)
+              const currentTicket = await ReservationModel.getUserReservation(userData.id, 0)
+              const pastTicket = await ReservationModel.getUserReservation(userData.id, 1)
               data.avatar = `//${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${data.avatar}`
-              res.status(200).send({ status: 'OK', msg: `Welcome back ${data.fullName}`, token, profileData: data })
+              res.status(200).send({
+                status: 'OK',
+                msg: `Welcome back ${data.fullName}`,
+                token,
+                profileData: data,
+                yourBooking: currentTicket,
+                history: pastTicket
+              })
             } else {
               res.status(200).send({
                 status: 'OK',
