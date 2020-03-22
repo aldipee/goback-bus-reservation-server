@@ -1,5 +1,6 @@
 const router = require('express').Router()
 
+const uuid = require('uuid').v4
 const ReservationModel = require('../models/Reservations')
 const UserModel = require('../models/User')
 
@@ -8,9 +9,7 @@ router.get('/schedules', async (req, res) => {
     try {
       const { route } = req.query
       const result = await ReservationModel.getReservationByRoute(route)
-      result
-        ? res.status(200).send({ status: 'OK', data: result })
-        : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+      result ? res.status(200).send({ status: 'OK', data: result }) : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
     } catch (error) {
       res.status(400).send({ status: 401, err: 'BAD REQUEST' })
     }
@@ -32,7 +31,10 @@ router.post('/purchase', async (req, res) => {
         const price = await ReservationModel.getPriceByIdSchedule(scheduleId)
         const userBalanace = await UserModel.getUserDetails(userId)
         if (userBalanace.balance > price) {
-          const result = await ReservationModel.insert(userId, userIdNumber, userIdType, seatNumber, scheduleId, price)
+          const bookingCode = uuid()
+            .substr(0, 8)
+            .toUpperCase()
+          const result = await ReservationModel.insert(userId, userIdNumber, userIdType, seatNumber, scheduleId, price, bookingCode)
           if (result) {
             const summary = await ReservationModel.reservationSummary(result.insertId)
             res.status(200).send({

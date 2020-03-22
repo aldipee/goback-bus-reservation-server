@@ -26,16 +26,7 @@ router.post('/profile', upload.single('avatar'), async (req, res) => {
     let { fullName, bod, gender, phoneNumber, address, balance } = req.body
     // set default balance to 0
     balance = balance || 0
-    const result = await UserModels.insertUserDetails(
-      userId,
-      fullName,
-      bod,
-      gender,
-      phoneNumber,
-      address,
-      balance,
-      filename
-    )
+    const result = await UserModels.insertUserDetails(userId, fullName, bod, gender, phoneNumber, address, balance, filename)
     const msg = `Thank you for completed your data ${fullName}, now you can use all of our services`
     result
       ? res.status(201).send({
