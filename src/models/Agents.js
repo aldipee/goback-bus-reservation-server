@@ -11,16 +11,13 @@ const db = require('../utils/db')
  */
 const insert = (name, userId, createdBy) => {
   return new Promise((resolve, reject) => {
-    db.query(
-      `INSERT INTO agents (name, user_id, created_by) VALUES ('${name}','${userId}','${createdBy}')`,
-      (err, result, field) => {
-        if (err) {
-          reject(err)
-        } else {
-          result.insertId ? resolve(true) : resolve(false)
-        }
+    db.query(`INSERT INTO agents (name, user_id, created_by) VALUES ('${name}','${userId}','${createdBy}')`, (err, result, field) => {
+      if (err) {
+        reject(err)
+      } else {
+        result.insertId ? resolve(true) : resolve(false)
       }
-    )
+    })
   })
 }
 
@@ -41,22 +38,53 @@ const getDataAgent = userId => {
     if (!userId) {
       reject(new Error('Unvalid parameter in getDataAgent'))
     } else {
-      db.query(
-        `SELECT id,name,created_by,create_at FROM agents WHERE user_id=${userId}`,
-        (err, result, field) => {
-          if (err) {
-            reject(err)
-          } else {
-            result ? resolve(result[0]) : result(false)
-          }
+      db.query(`SELECT id,name,created_by,create_at FROM agents WHERE user_id=${userId}`, (err, result, field) => {
+        if (err) {
+          reject(err)
+        } else {
+          result ? resolve(result[0]) : result(false)
         }
-      )
+      })
     }
+  })
+}
+const reservationsDetailsByBookingCode = bookingCode => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT reservations.id as idReservation, reservations.booking_code, 
+    reservations.user_id_number, reservations.user_id_type, reservations.total_price, 
+    reservations.create_at as booked_time, buses.name, reservations.seat_number, schedules.time, 
+    schedules.date, userdetails.fullName, userdetails.gender, userdetails.phoneNumber, routes.destination, 
+    routes.destination_code, routes.origin, routes.origin_code FROM reservations 
+    JOIN schedules ON reservations.schedule_id = schedules.id JOIN userdetails 
+    ON reservations.user_id = userdetails.userId JOIN routes ON routes.id = schedules.route_id JOIN buses 
+    ON buses.id = schedules.bus_id WHERE reservations.booking_code = '${bookingCode}'`
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        result.length ? resolve(result[0]) : resolve(false)
+      }
+    })
+  })
+}
+
+const passengerCheckIn = bookingCode => {
+  return new Promise((resolve, reject) => {
+    const query = `UPDATE reservations SET check_in = 1 WHERE booking_code = '${bookingCode}'`
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        result.changedRows ? resolve(true) : resolve(false)
+      }
+    })
   })
 }
 
 module.exports = {
   getAll,
   getDataAgent,
-  insert
+  insert,
+  passengerCheckIn,
+  reservationsDetailsByBookingCode
 }

@@ -44,7 +44,53 @@ const insert = (destination, origin, distance, createdBy) => {
   }
 }
 
+const getRouteById = routeId => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * FROM routes WHERE id = '${routeId}'`
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        result.length ? resolve(result[0]) : resolve(false)
+      }
+    })
+  })
+}
+
+const updateRouteById = (routeId, objData) => {
+  return new Promise((resolve, reject) => {
+    const { destination, destinationCode, origin, originCode, distance } = objData
+    const query = `UPDATE routes SET destination='${destination}', destination_code='${destinationCode}', 
+    origin='${origin}', origin_code= '${originCode}', distance= '${distance}' WHERE id = '${routeId}'`
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err)
+        console.log(err)
+      } else {
+        result.changedRows ? resolve(true) : resolve(false)
+      }
+    })
+  })
+}
+
+const deleteRouteById = routeId => {
+  return new Promise((resolve, reject) => {
+    const query = `DELETE FROM routes WHERE id = '${routeId}'`
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err)
+        console.log(err)
+      } else {
+        result ? resolve(true) : resolve(false)
+      }
+    })
+  })
+}
+
 module.exports = {
   getAll,
-  insert
+  insert,
+  updateRouteById,
+  getRouteById,
+  deleteRouteById
 }
