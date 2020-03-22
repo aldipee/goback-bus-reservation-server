@@ -105,17 +105,18 @@ const getReservationByRoute = async routeId => {
 
 /**
  * This ione is being called nowhere
+ * And this is for user's history
  * @param {*} userId
  */
 const getUserReservation = userId => {
   //   const query = `SELECT * FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id JOIN agents ON agents.id = schedules.agent_id WHERE reservations.user_id = 14`
-  const query2 = `SELECT reservations.id, reservations.user_id_number, reservations.user_id_type, 
-  reservations.seat_number, reservations.cancel, users.username, users.email, schedules.time, routes.origin,
-   routes.destination, routes.distance, buses.name, buses.total_seat, agents.name, price.price FROM 
-   reservations JOIN schedules ON reservations.schedule_id = schedules.id 
-   JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON 
-   routes.id = schedules.route_id JOIN agents ON schedules.agent_id = agents.id 
-   JOIN price ON price.route_id = schedules.route_id AND price.agent_id = agents.id WHERE reservations.user_id = ${userId}`
+  const query2 = `SELECT reservations.user_id as booked_by_userid, userdetails.fullName as booked_by_name, schedules.time as schedule_time, schedules.date as schedule_date, reservations.schedule_id, reservations.user_id_number as passenger_id , 
+  reservations.user_id_type as passenger_id_type, reservations.seat_number, reservations.cancel, routes.origin, routes.origin_code, 
+  routes.destination, routes.destination_code, routes.id as route_id, routes.distance, buses.name as bus_name, buses.total_seat, 
+  agents.name as travel_name, schedules.agent_id as travel_id, price.price as totalPrice FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id 
+  JOIN routes ON routes.id = schedules.route_id JOIN  buses ON schedules.bus_id = buses.id JOIN userdetails ON reservations.user_id = userdetails.userId
+  JOIN agents ON schedules.agent_id = schedules.agent_id  JOIN price ON price.route_id = schedules.route_id AND price.agent_id = agents.id
+  WHERE reservations.user_id = ${userId} AND agents.id = schedules.agent_id`
   db.query(query2, (err, result, field) => {
     if (err) {
       console.log(err)
@@ -124,7 +125,7 @@ const getUserReservation = userId => {
     }
   })
 }
-
+// getUserReservation(36)
 /**
  * This function for get all Reservation details
  * And being called on Reservation Controller after the reservations inserted

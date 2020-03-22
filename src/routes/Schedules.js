@@ -1,5 +1,5 @@
 const router = require('express').Router()
-
+const authMiddleware = require('../middleware/Auth')
 const SchedulesModel = require('../models/Schedules')
 const ReservationsModel = require('../models/Reservations')
 
@@ -21,14 +21,16 @@ router.get('/', async (req, res) => {
       const key = sortBy
       const value = sort
       sort = (sort && { key, value }) || { key: 'id', value: 1 }
-
-      const conditions = { page, perPage: limit, sort }
-
+      const todayDate = new Date().toISOString().slice(0, 10)
+      date = date || todayDate
+      const conditions = { page, limit, sort, date }
+      const totalResults = await SchedulesModel.totalSchedule(route, conditions.date)
       // const results = await SchedulesModel.allSchedule(req.query.route)
       // Create general function for Promise all
       const fetchDataWithSeat = async () => {
         // get all schedules
         const results = await SchedulesModel.allSchedule(route, conditions)
+
         // if schedules are avaiabale
         if (results.length) {
           // new promise
@@ -38,9 +40,12 @@ router.get('/', async (req, res) => {
             // if seatsData avaiable
             if (seatsData) {
               // get all seats number as array then put it on every object from database results
+              //
+              obj.date = obj.date.toLocaleDateString()
               return { ...obj, seatsInfo: seatsData }
             } else {
               // otherwise, if seat data unavaiable, then just send array of number all seats that avaiable
+              obj.date = obj.date.toLocaleDateString()
               return {
                 ...obj,
                 seatsAvaiable: [...Array.from({ length: obj.total_seat }, (v, k) => k + 1)]
@@ -58,7 +63,13 @@ router.get('/', async (req, res) => {
       }
       fetchDataWithSeat().then(data => {
         data
-          ? res.status(200).send({ status: 'OK', totalData: data.length, data })
+          ? res.status(200).send({
+              status: 'OK',
+              totalData: totalResults,
+              page,
+              totalPage: Math.ceil(totalResults / limit),
+              data
+            })
           : res.status(201).send({ status: 'OK', message: 'Bus not found' })
       })
     } catch (error) {
@@ -70,7 +81,7 @@ router.get('/', async (req, res) => {
     res.status(400).send({ status: 'UNAUTHORIZATION', statusCode: 400 })
   }
 })
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware.validAuthToken, async (req, res) => {
   console.log(req.user)
   if ((req.user && req.user.userRole === 2) || req.user.userRole === 1) {
     // console.log(`USER SESSIONS : ${req.user}`)
@@ -79,9 +90,7 @@ router.post('/', async (req, res) => {
       const { userId, agentId } = req.user
       const { time, routeId, busId } = req.body
       const results = await SchedulesModel.create(time, routeId, busId, agentId, userId)
-      results
-        ? res.status(200).send({ status: 'OK', message: 'New Schedule Inserted' })
-        : res.status(500).send({ status: 'ERR', statusCode: 500 })
+      results ? res.status(200).send({ status: 'OK', message: 'New Schedule Inserted' }) : res.status(500).send({ status: 'ERR', statusCode: 500 })
     } catch (error) {
       console.log(error)
       res.send({ error })

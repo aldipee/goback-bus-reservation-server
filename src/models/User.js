@@ -1,5 +1,6 @@
 const db = require('../utils/db')
 const bcrypt = require('bcryptjs')
+const uuid = require('uuid').v4
 
 /**
  *Get All data users from database
@@ -64,6 +65,22 @@ const getUserData = username => {
   }
 }
 
+const getUserDataById = userId => {
+  if (userId) {
+    return new Promise((resolve, reject) => {
+      db.query(`SELECT verified_code FROM users WHERE id='${userId}'`, (err, result, fields) => {
+        if (!err) {
+          result[0] ? resolve(result[0]) : resolve(false)
+        } else {
+          reject(err)
+        }
+      })
+    })
+  } else {
+    return 'Required userId Parameter in getUserData'
+  }
+}
+
 /**
  * Insert new user to database
  * @todo Add Strict rules about username for accepts alphanumeric only
@@ -79,7 +96,7 @@ const insert = (username, password, email, role = 3) => {
   return new Promise((resolve, reject) => {
     // Insert into tabel 'users
     db.query(
-      `INSERT INTO users (username,password,email,role_id) VALUES('${username}', '${encryptPassword}', '${email}', '${role}')`,
+      `INSERT INTO users (username,password,email,role_id, verified_code) VALUES('${username}', '${encryptPassword}', '${email}', '${role}','${uuid()}')`,
       (err, results, fields) => {
         if (!err) {
           resolve({ success: true, data: results })
@@ -210,5 +227,6 @@ module.exports = {
   isUsernameExist,
   insertUserDetails,
   isProfileCompleted,
-  getUserDetails
+  getUserDetails,
+  getUserDataById
 }

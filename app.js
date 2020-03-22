@@ -30,7 +30,7 @@ app.use('/auth', authRouter)
 app.use('/agents', authMiddleware.validAuthToken, agentsRouter)
 app.use('/routes', authMiddleware.validAuthToken, routesRouter)
 app.use('/bus', authMiddleware.validAuthToken, busesRouter)
-app.use('/schedules', authMiddleware.validAuthToken, schedulesRouter)
+app.use('/schedules', schedulesRouter)
 app.use('/reservations', authMiddleware.validAuthToken, reservationRouter)
 
 // catch 404 and forward to error handler

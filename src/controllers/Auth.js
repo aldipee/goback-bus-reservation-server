@@ -11,11 +11,13 @@ module.exports = {
       const { username, password, email } = req.body
       const isUsernameAvaiable = await UsersModel.isUsernameExist(username)
       if (!isUsernameAvaiable) {
-        // if username not avaiable, then user can register
+        // if username not available, then user can register
         try {
           const isRegisterSuccess = await UsersModel.insert(username, password, email, 3)
-          isRegisterSuccess
-            ? res.status(201).send({ success: true, data: isRegisterSuccess })
+          const userVerifCode = await UsersModel.getUserDataById(isRegisterSuccess.data.insertId)
+          const verifyLink = `${process.env.APP_HOST}:${process.env.APP_PORT}/auth/verify?code=${userVerifCode.verified_code}&action=${isRegisterSuccess.data.insertId}`
+          isRegisterSuccess.data.insertId
+            ? res.status(201).send({ isRegisterSuccess, verifyLink })
             : res.status({ success: false, msg: 'Error' })
         } catch (error) {
           res.status(401).send({ status: 'ERR', error })
