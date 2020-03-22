@@ -147,6 +147,22 @@ const updatePriceById = (idPrice, price) => {
   })
 }
 
+const getPriceForAgent = agentId => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT price.id as idPrice, price.price, routes.destination, routes.destination_code, 
+    routes.origin, routes.origin_code, routes.id as route_id, routes.distance, agents.name as your_travel_name 
+    FROM price JOIN routes ON price.route_id = routes.id JOIN agents ON agents.id = price.agent_id
+    WHERE price.agent_id ='${agentId}'`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.length ? resolve(results) : resolve(false)
+      }
+    })
+  })
+}
+
 module.exports = {
   create,
   allSchedule,
@@ -155,5 +171,6 @@ module.exports = {
   update,
   setPrice,
   isPriceAlreadySet,
-  updatePriceById
+  updatePriceById,
+  getPriceForAgent
 }

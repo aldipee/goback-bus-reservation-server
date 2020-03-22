@@ -161,6 +161,23 @@ router.patch('/price/:id', authMiddleware.validAuthToken, async (req, res) => {
     } catch (error) {
       res.status(500).send({ status: 'ERRR', error })
     }
+  } else {
+    res.status(401).send({ status: 'FORIBIDDEN' })
+  }
+})
+router.get('/price', authMiddleware.validAuthToken, async (req, res) => {
+  if (req.user.userRole === 2) {
+    try {
+      const result = await SchedulesModel.getPriceForAgent(req.user.agentId)
+      result
+        ? res.status(200).send({ status: 'OK', data: result })
+        : res.status(400).send({ status: 'FAILED', message: 'BAD REQUEST' })
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({ status: 'ERRR', error })
+    }
+  } else {
+    res.status(401).send({ status: 'FORIBIDDEN' })
   }
 })
 
