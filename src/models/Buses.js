@@ -29,6 +29,50 @@ const insert = (name, totalSeat, agentId, createdBy) => {
   })
 }
 
+const busDataById = idBuses => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * FROM buses WHERE id='${idBuses}'`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.length ? resolve(results[0]) : resolve(0)
+      }
+    })
+  })
+}
+
+const update = (idBuses, busName, totalSeat, agentId) => {
+  return new Promise((resolve, reject) => {
+    const query = `UPDATE buses SET name='${busName}', total_seat='${totalSeat}' WHERE id='${idBuses}'
+    AND agent_id = '${agentId}'`
+    db.query(query, (err, results, field) => {
+      if (err) {
+        reject(err)
+      } else {
+        console.log(results)
+        results.changedRows ? resolve(results) : resolve(false)
+      }
+    })
+  })
+}
+
+const getBusByAgentId = agentId => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * FROM buses WHERE agent_id='${agentId}'`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.length ? resolve(results) : resolve(0)
+      }
+    })
+  })
+}
+
 module.exports = {
-  insert
+  insert,
+  update,
+  busDataById,
+  getBusByAgentId
 }

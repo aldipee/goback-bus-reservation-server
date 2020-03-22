@@ -17,8 +17,16 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   if (req.user && req.user.userRole === 1) {
     if (req.body) {
-      const { destination, origin, distance } = req.body
-      const result = await RouteModel.insert(destination, origin, distance, req.user.userId)
+      const { destination, destinationCode, origin, originCode, distance } = req.body
+      const dest = {
+        full: destination,
+        code: destinationCode
+      }
+      const orig = {
+        full: origin,
+        code: originCode
+      }
+      const result = await RouteModel.insert(dest, orig, distance, req.user.userId)
       result
         ? res.status(200).send({ status: 'OK', message: 'Routes inserted' })
         : res.status(500).send({ status: 'FAILED', statusCode: 500 })

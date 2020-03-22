@@ -31,7 +31,8 @@ const insert = (destination, origin, distance, createdBy) => {
   if (destination && origin && distance && createdBy) {
     return new Promise((resolve, reject) => {
       db.query(
-        `INSERT INTO routes (destination, origin, distance, created_by) VALUES ('${destination}','${origin}','${distance}','${createdBy}')`,
+        `INSERT INTO routes (destination,destination_code, origin, origin_code, distance, created_by)
+         VALUES ('${destination.full}','${destination.code}', '${origin.full}','${origin.code}','${distance}','${createdBy}')`,
         (err, results, field) => {
           if (err) {
             reject(err)
