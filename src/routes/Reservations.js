@@ -4,20 +4,39 @@ const uuid = require('uuid').v4
 const ReservationModel = require('../models/Reservations')
 const UserModel = require('../models/User')
 
-router.get('/schedules', async (req, res) => {
-  if (req.query) {
+// router.get('/schedules', async (req, res) => {
+//   if (req.query) {
+//     try {
+//       const { route } = req.query
+//       const result = await ReservationModel.getReservationByRoute(route)
+//       result
+//         ? res.status(200).send({ status: 'OK', data: result })
+//         : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+//     } catch (error) {
+//       res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+//     }
+//   } else {
+//     res.status(400).send({
+//       status: 400,
+//       err: 'BAD REQUEST',
+//       detailError: 'Please provied which route that you want'
+//     })
+//   }
+// })
+router.get('/all-passengers', async (req, res) => {
+  if (req.user.userRole === 2) {
     try {
-      const { route } = req.query
-      const result = await ReservationModel.getReservationByRoute(route)
-      result ? res.status(200).send({ status: 'OK', data: result }) : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+      const result = await ReservationModel.getAllReservationsByAgent(req.user.agentId)
+      result
+        ? res.status(200).send({ status: 'OK', data: result })
+        : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
     } catch (error) {
       res.status(400).send({ status: 401, err: 'BAD REQUEST' })
     }
   } else {
-    res.status(400).send({
-      status: 400,
-      err: 'BAD REQUEST',
-      detailError: 'Please provied which route that you want'
+    res.status(401).send({
+      status: 401,
+      err: 'FORBIDDEN'
     })
   }
 })
@@ -34,7 +53,15 @@ router.post('/purchase', async (req, res) => {
           const bookingCode = uuid()
             .substr(0, 8)
             .toUpperCase()
-          const result = await ReservationModel.insert(userId, userIdNumber, userIdType, seatNumber, scheduleId, price, bookingCode)
+          const result = await ReservationModel.insert(
+            userId,
+            userIdNumber,
+            userIdType,
+            seatNumber,
+            scheduleId,
+            price,
+            bookingCode
+          )
           if (result) {
             const summary = await ReservationModel.reservationSummary(result.insertId)
             res.status(200).send({

@@ -71,7 +71,9 @@ const getSeats = (idSchedule, route) => {
           results.map((data, index) => {
             seatsBooked.push(data.seat_number)
           })
-          const seatsAvailable = [...Array.from({ length: results[0].total_seat }, (v, k) => k + 1)].filter(seat => !seatsBooked.includes(seat))
+          const seatsAvailable = [...Array.from({ length: results[0].total_seat }, (v, k) => k + 1)].filter(
+            seat => !seatsBooked.includes(seat)
+          )
 
           resolve({ seatsBooked, seatsAvailable })
         } else {
@@ -122,7 +124,7 @@ const getUserReservation = userId => {
     }
   })
 }
-// getUserReservation(36)
+
 /**
  * This function for get all Reservation details
  * And being called on Reservation Controller after the reservations inserted
@@ -153,11 +155,29 @@ const reservationSummary = idReservation => {
   })
 }
 
+const getAllReservationsByAgent = agentId => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT reservations.id as id_reservation, reservations.user_id_number as passenger_id_number, 
+    reservations.user_id_type as passenger_id_type, reservations.seat_number, reservations.booking_code, reservations.check_in, 
+    schedules.id as schedule_id, schedules.time, schedules.date, schedules.route_id, schedules.bus_id,  
+    userdetails.fullName, userdetails.gender FROM reservations JOIN schedules 
+    ON schedules.id = reservations.schedule_id JOIN routes ON schedules.route_id = routes.id JOIN userdetails 
+    ON userdetails.userId = reservations.user_id WHERE schedules.agent_id = '${agentId}'`
+    db.query(query, (err, results, field) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.length ? resolve(results) : resolve(false)
+      }
+    })
+  })
+}
 module.exports = {
   insert,
   getUserReservation,
   getSeats,
   getReservationByRoute,
   getPriceByIdSchedule,
-  reservationSummary
+  reservationSummary,
+  getAllReservationsByAgent
 }
