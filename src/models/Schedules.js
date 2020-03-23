@@ -82,8 +82,8 @@ const totalSchedule = (route, date) => {
 
 const update = (idSchedules, agentId, objData) => {
   return new Promise((resolve, reject) => {
-    const { time, route_id, date, bus_id } = objData
-    const query = `UPDATE schedules SET time = '${time}', route_id '${route_id}', date ='${date}', bus_id = '${bus_id}' 
+    const { time, idRoute, date, idBus } = objData
+    const query = `UPDATE schedules SET time = '${time}', route_id '${idRoute}', date ='${date}', bus_id = '${idBus}' 
     WHERE id = '${idSchedules}' AND agent_id ='${agentId}'`
     db.query(query, (err, results) => {
       if (err) {
@@ -149,8 +149,8 @@ const updatePriceById = (idPrice, price) => {
 
 const getPriceForAgent = agentId => {
   return new Promise((resolve, reject) => {
-    const query = `SELECT price.id as idPrice, price.price, routes.destination, routes.destination_code, 
-    routes.origin, routes.origin_code, routes.id as route_id, routes.distance, agents.name as your_travel_name 
+    const query = `SELECT price.id as idPrice, price.price, routes.origin, routes.origin_code, routes.destination, routes.destination_code, 
+     routes.id as route_id, routes.distance, agents.name as your_travel_name 
     FROM price JOIN routes ON price.route_id = routes.id JOIN agents ON agents.id = price.agent_id
     WHERE price.agent_id ='${agentId}'`
     db.query(query, (err, results) => {

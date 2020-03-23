@@ -6,14 +6,23 @@ module.exports = {
   allData: async (req, res) => {
     // get all data
     if (req.user.userRole === 1) {
-      const results = await UserModel.getAllUsersData()
+      let { search, sort, sortBy, page, perPage } = req.query
+      search = search || ''
+      sort = sort || 0
+      sortBy = sortBy || 'id'
+      page = page || 1
+      perPage = perPage || 5
+
+      const conditions = { search, sort, sortBy, page, perPage }
+
+      const results = await UserModel.getAllUsersData(conditions)
       try {
         // in order to send data to client, we hava to delete some creditial info from the object
         const data = results.data.map((element, index) => {
           delete element.password
           return element
         })
-        res.status(200).send({ status: 'OK', data })
+        res.status(200).send({ status: 'OK', totalData: data.length, data })
       } catch (err) {
         res.status(500).send({ success: false, err })
       }

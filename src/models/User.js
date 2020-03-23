@@ -7,10 +7,21 @@ const uuid = require('uuid').v4
  * @returns {Array of Object} All users from database
  */
 
-const getAllUsersData = () => {
+const getAllUsersData = conditions => {
   return new Promise((resolve, reject) => {
     // Select all from table 'users'
-    db.query('SELECT * FROM users', (err, result, field) => {
+    const { search, sort, sortBy, page, perPage } = conditions
+    // const query2 = `SELECT users.id as id, users.username, users.email, userdetails.fullName, userdetails.gender,
+    // userdetails.bod, userdetails.balance, userdetails.phoneNumber, userdetails.avatar
+    // FROM users JOIN userdetails WHERE users.id = userdetails.userId AND  userdetails.fullName LIKE
+    // 'si%'`
+    const query = `SELECT users.id as id, users.username, users.email, userdetails.fullName, userdetails.gender,
+    userdetails.bod, userdetails.balance, userdetails.phoneNumber, userdetails.avatar
+    FROM users JOIN userdetails WHERE users.id = userdetails.userId  AND  fullName LIKE 
+    '${search}%' ORDER BY ${sortBy} ${sort ? 'ASC' : 'DESC'}
+    LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`
+    console.log(query)
+    db.query(query, (err, result) => {
       if (!err) {
         resolve({ status: true, data: result })
       } else {

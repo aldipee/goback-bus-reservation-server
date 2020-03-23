@@ -1,6 +1,7 @@
 const UsersModel = require('../models/User')
 const AgentsModel = require('../models/Agents')
 const ReservationModel = require('../models/Reservations')
+const AuthModel = require('../models/Auth')
 
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -84,16 +85,13 @@ module.exports = {
             }
             if (await UsersModel.isProfileCompleted(userData.id)) {
               const data = await UsersModel.getUserDetails(userData.id)
-              const currentTicket = await ReservationModel.getUserReservation(userData.id, 0)
-              const pastTicket = await ReservationModel.getUserReservation(userData.id, 1)
+
               data.avatar = `//${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${data.avatar}`
               res.status(200).send({
                 status: 'OK',
                 msg: `Welcome back ${data.fullName}`,
                 token,
-                profileData: data,
-                yourBooking: currentTicket,
-                history: pastTicket
+                profileData: data
               })
             } else {
               res.status(200).send({
@@ -120,6 +118,21 @@ module.exports = {
       console.log(req.user)
     } else {
       res.send({ status: 'OK', message: 'You already logout' })
+    }
+  },
+  verify: async (req, res) => {
+    if (req.query.code && req.query.action) {
+      const { code, action } = req.query
+      const result = await AuthModel.verifyUser(action, code)
+      if (result) {
+        res
+          .status(201)
+          .send({ status: 'OK', message: 'Your account has been verified. Please login to countinue' })
+      } else {
+        res.status(400).send({ status: 'FAILED' })
+      }
+    } else {
+      res.status(400).send({ status: 'BAD REQUEST' })
     }
   }
 }

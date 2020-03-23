@@ -30,7 +30,7 @@ router.post('/check-in', async (req, res) => {
       console.log(error)
     }
   } else {
-    res.status(400).send({ status: 'UNAUTHORIZATION', message: `GO ON, NOW!!` })
+    res.status(400).send({ status: 'UNAUTHORIZATION', message: 'GO ON, NOW!!' })
   }
 })
 // Create Agents
@@ -40,7 +40,9 @@ router.post('/', async (req, res) => {
       const { agentName, userId } = req.body
       try {
         const results = await AgentsModel.insert(agentName, userId, req.user.userId)
-        results ? res.send({ status: 'OK', message: 'Sucess convert user to become agent' }) : res.status(500).send({ err: 'Failed' })
+        results
+          ? res.send({ status: 'OK', message: 'Sucess convert user to become agent' })
+          : res.status(500).send({ err: 'Failed' })
       } catch (error) {
         console.log(error)
         res.status(500).send({ status: 500, error })
