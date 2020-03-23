@@ -99,6 +99,7 @@ router.get('/history', async (req, res) => {
       const conditions = {
         page,
         limit,
+        // Sort by fullName, time, date
         sort: (sort && sortBy && { key: sortBy, value: sort }) || { key: 'fullName', value: 1 }
       }
       show = show || 'all'

@@ -29,6 +29,11 @@ const insert = (name, totalSeat, agentId, createdBy) => {
   })
 }
 
+/**
+ * Bus Data based on ID bus
+ * @param {Number} idBuses Id bus as Identifier
+ * @returns {Object} of Bus data. [Bus Name, Total Seat, Agent ID, Created By, ID Bus]
+ */
 const busDataById = idBuses => {
   return new Promise((resolve, reject) => {
     const query = `SELECT * FROM buses WHERE id='${idBuses}'`
@@ -42,6 +47,15 @@ const busDataById = idBuses => {
   })
 }
 
+/**
+ *
+ * @todos Add Validation on each parameters
+ * @param {Number} idBuses ID bus as Identifier
+ * @param {String} busName Bus name
+ * @param {Number} totalSeat Input from request
+ * @param {Number} agentId From user's sessions
+ * @returns {Boolean} If Successfully will return true, otherwise false
+ */
 const update = (idBuses, busName, totalSeat, agentId) => {
   return new Promise((resolve, reject) => {
     const query = `UPDATE buses SET name='${busName}', total_seat='${totalSeat}' WHERE id='${idBuses}'
@@ -56,7 +70,11 @@ const update = (idBuses, busName, totalSeat, agentId) => {
     })
   })
 }
-
+/**
+ * Bus Data based on Agent Id
+ * @param {Number} AgentId Agent ID as Identifier
+ * @returns {Object} of Bus data. [Bus Name, Total Seat, Agent ID, Created By, ID Bus]
+ */
 const getBusByAgentId = agentId => {
   return new Promise((resolve, reject) => {
     const query = `SELECT * FROM buses WHERE agent_id='${agentId}'`

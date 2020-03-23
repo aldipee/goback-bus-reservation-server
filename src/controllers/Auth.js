@@ -85,7 +85,7 @@ module.exports = {
             }
             if (await UsersModel.isProfileCompleted(userData.id)) {
               const data = await UsersModel.getUserDetails(userData.id)
-
+              // Add new Public url for Picture
               data.avatar = `//${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${data.avatar}`
               res.status(200).send({
                 status: 'OK',

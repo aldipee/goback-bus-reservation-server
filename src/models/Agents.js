@@ -11,16 +11,23 @@ const db = require('../utils/db')
  */
 const insert = (name, userId, createdBy) => {
   return new Promise((resolve, reject) => {
-    db.query(`INSERT INTO agents (name, user_id, created_by) VALUES ('${name}','${userId}','${createdBy}')`, (err, result, field) => {
-      if (err) {
-        reject(err)
-      } else {
-        result.insertId ? resolve(true) : resolve(false)
+    db.query(
+      `INSERT INTO agents (name, user_id, created_by) VALUES ('${name}','${userId}','${createdBy}')`,
+      (err, result, field) => {
+        if (err) {
+          reject(err)
+        } else {
+          result.insertId ? resolve(true) : resolve(false)
+        }
       }
-    })
+    )
   })
 }
 
+/**
+ * Get All agents
+ * @returns {Array of Object} data agents
+ */
 const getAll = () => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM agents', (err, result, field) => {
@@ -33,21 +40,35 @@ const getAll = () => {
   })
 }
 
+/**
+ * Single data agents by user id
+ * @param {number} userId as identifier for selecting data
+ * @returns {Array of Object} details agent data
+ */
 const getDataAgent = userId => {
   return new Promise((resolve, reject) => {
     if (!userId) {
       reject(new Error('Unvalid parameter in getDataAgent'))
     } else {
-      db.query(`SELECT id,name,created_by,create_at FROM agents WHERE user_id=${userId}`, (err, result, field) => {
-        if (err) {
-          reject(err)
-        } else {
-          result ? resolve(result[0]) : result(false)
+      db.query(
+        `SELECT id,name,created_by,create_at FROM agents WHERE user_id=${userId}`,
+        (err, result, field) => {
+          if (err) {
+            reject(err)
+          } else {
+            result ? resolve(result[0]) : result(false)
+          }
         }
-      })
+      )
     }
   })
 }
+
+/**
+ * Get Reservations detail(Passenger) by Booking Code
+ * @param {String} bookingCode
+ * @returns {Array of Object} Passenger & boarding data
+ */
 const reservationsDetailsByBookingCode = bookingCode => {
   return new Promise((resolve, reject) => {
     const query = `SELECT reservations.id as idReservation, reservations.booking_code, 
@@ -68,6 +89,11 @@ const reservationsDetailsByBookingCode = bookingCode => {
   })
 }
 
+/**
+ * Insert Booking Code at Agent's Counter
+ * @param {String} bookingCode
+ * @returns {Boolean} If Success will return true, otherwise false
+ */
 const passengerCheckIn = bookingCode => {
   return new Promise((resolve, reject) => {
     const query = `UPDATE reservations SET check_in = 1 WHERE booking_code = '${bookingCode}'`

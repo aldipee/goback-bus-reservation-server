@@ -1,8 +1,8 @@
 const db = require('../utils/db')
 
 /**
- * Get All Routes
- * @returns {array_of_object}
+ * All Rotues Avaiable
+ * @returns {array_of_object} All routes
  */
 
 const getAll = () => {
@@ -19,11 +19,12 @@ const getAll = () => {
 
 /**
  * Insert new destination
- * @param {string} destination
- * @param {string} origin
- * @param {number} distance
- * @param {number} createdBy
- * @return {boolean}
+ * @todo Validation for Parameters
+ * @param {Object} destination City with 3 Code Example : {full : 'Jakarta', code : 'JKT'}
+ * @param {Object} origin City with 3 Code Example : {full : 'Jakarta', code : 'JKT'}
+ * @param {number} distance Number
+ * @param {number} createdBy User's Sessions
+ * @return {boolean} If success will return true, otherwise false
  */
 const insert = (destination, origin, distance, createdBy) => {
   distance = parseInt(distance)
@@ -45,6 +46,10 @@ const insert = (destination, origin, distance, createdBy) => {
   }
 }
 
+/**
+ *
+ * @param {Number} routeId
+ */
 const getRouteById = routeId => {
   return new Promise((resolve, reject) => {
     const query = `SELECT * FROM routes WHERE id = '${routeId}'`
