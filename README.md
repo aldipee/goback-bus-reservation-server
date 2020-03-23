@@ -44,11 +44,29 @@ NODE_ENV=development node server.js
 **1. GET**
 
 * `/routes`(Get  All routes) [Admin & Agent Only]
+
+
+
 * `/schedules?sortBy=time&origin=JKT&destination=SMG&sort=0&date=2020-03-24`
+
+
+
 * `/reservations/schedules?route=9` (Get All Reservations by route)
+
+
+
 * `/auth/verify?code=5476ad74-eda8-4633-959d-a4fa7e082c94&action=27`
+
+
+
 * `/schedules/price` (Get All price based related agent)
+
+
+
 * `/bus` (Get All buses info on related agent)
+
+
+
 * `/reservations/all-passengers` (Get all passengers on related agent)
 
 **2. POST**
@@ -56,37 +74,88 @@ NODE_ENV=development node server.js
 * `/schedules` (Agent)
     * ``` { "time": "07:00:00", "routeId": 2, "busId": 4 , date : '2020-03-24'} ```
 * date [default = Today]
+
+
+
 * `/bus` (Agent)
+    
     * ``` { "busName": "Super JET Bus 3", totalSeat : 10 } ```
+    
+    
+    
 * `/routes` (Admin Only & Not Tested)
+    
     * `{"origin" : "Semarang", "originCode" : "SMG", "destination" : "Jakarta", "destinationCode" : "JKT", "distance" : "588"}`
+    
+    
+    
 * `/agents` (Add new agents [Admin])
+    
     * `{"userId" : "5",  "agentName" : "PT. Travel Sejati"}`
+    
+    
+    
 * `/agents/check-in` (User Check in By Booking Code [Agents])
+    
     * `{"bookingCOde ": "387CA1FD"}`
+    
+    
+    
 * `/reservations/purchase`
+    
     * `{"userIdNumber" : "1707031406010002", "userIdType" : "KTP", "seatNumber" : "4", "scheduleId" : "30"}`
+    
+    
+    
 * `/auth/register`
+    
     * `{"username" : "abidaniela", "password" : "lala", "email" : "daniel3444@gmail.com"}`
+    
+    
+    
 * `/auth/login`
+    
     * `{"username" : "abidaniela", "password" : "lala"}`
+    
+    
+    
 * `/users/profile`
+    
     * `{"avatar" : "your-beautiful-pic.jpg", "fullName" : "Abi Daniela Trisdayanti", "bod" :  "2000-04-24",  "gender" :  "1", "phoneNumber" : "081367946763", "address" : "Jl. Suka Suka 4"}`
+    
+    
+    
 * `/schedules/price`
+    
     * `{routeId : 4, price : 70000}`
+    
+    
 
 **3. PATCH**
+
+
 
 * `/routes/:id` (Update routes by id)
   
    * `{"origin" : "Semarang", "originCode" : "SMG", "destination" : "Jakarta", "destinationCode" : "JKT", "distance" : "900"}`
+   
+   
 * `/users/:id` (Update users credentials by id)
-  * ``` { username : "binggo", password : "nopasswordbos", email : "emailusers@gmail.com"} ```
+  
+  * ``` { username : "binggo", password : "nopasswordbos", email : "emailusers@gmail.com"}``` 
+  
+  
 * `/schedules/price/:id`
+  
   * ``` { price : 70000}```
   
+  
+  
 * `/bus/:id`
+   
    * `{busName : "Super Kencana Jet-Bus", totalSeat : 20}`
+   
+   
 
 **4. DELETE**
 
