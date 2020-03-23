@@ -19,9 +19,10 @@ router.get('/', async (req, res) => {
       limit = parseInt(limit) || 5
 
       // Sort by time, or price, or id
-      const key = sortBy
+      const key = sortBy || 'id'
       const value = sort
       sort = (sort && { key, value }) || { key: 'id', value: 1 }
+      console.log(sort, 'SORTTTTTTTTTTT')
       const todayDate = new Date().toISOString().slice(0, 10)
       date = date || todayDate
       const conditions = { page, limit, sort, date }

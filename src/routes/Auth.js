@@ -10,7 +10,9 @@ router.get('/verify', async (req, res) => {
     const { code, action } = req.query
     const result = await AuthModel.verifyUser(action, code)
     if (result) {
-      res.status(201).send({ status: 'OK', message: 'Your account has been verified' })
+      res
+        .status(201)
+        .send({ status: 'OK', message: 'Your account has been verified. Please login to countinue' })
     } else {
       res.status(400).send({ status: 'FAILED' })
     }
