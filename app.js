@@ -2,7 +2,7 @@ const createError = require('http-errors')
 const express = require('express')
 const path = require('path')
 const logger = require('morgan')
-const cors = require('cors');
+const cors = require('cors')
 
 // Route
 const indexRouter = require('./src/routes/Home')
@@ -47,6 +47,9 @@ app.use((err, req, res, next) => {
   res.locals.error = req.app.get('env') === 'development' ? err : {}
 
   // render the error page
+  if (err.code === 'FORMATTYPE') {
+    res.status(400).send({ err: err.message })
+  }
   res.status(err.status || 500)
   res.send(err.status)
 })

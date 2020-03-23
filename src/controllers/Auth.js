@@ -1,6 +1,6 @@
 const UsersModel = require('../models/User')
 const AgentsModel = require('../models/Agents')
-const ReservationModel = require('../models/Reservations')
+
 const AuthModel = require('../models/Auth')
 
 const bcrypt = require('bcryptjs')

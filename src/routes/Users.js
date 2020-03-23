@@ -15,12 +15,12 @@ const storage = multer.diskStorage({
 })
 const upload = multer({
   storage,
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req, file, next) => {
+    console.log(file)
     if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
-      cb(null, true)
+      next(null, true)
     } else {
-      cb(null, false)
-      return cb(new Error('Only .png, .jpg and .jpeg format allowed!'))
+      next({ message: 'Only .png, .jpg and .jpeg format allowed!', code: 'FORMATTYPE' }, false)
     }
   }
 })
@@ -32,10 +32,8 @@ router.post('/update', upload.single('avatart'), async (req, res) => {
   console.log(req.file)
   if (req.user) {
     try {
-      console.log(req.user, 'ADMKIMDISAMDIASd')
       // Make sure requests exists
       const { filename } = req.file
-
       const { userId } = req.user
       let { fullName, bod, gender, phoneNumber, address, balance } = req.body
       // set default balance to 0
@@ -59,7 +57,7 @@ router.post('/update', upload.single('avatart'), async (req, res) => {
         : res.status(400).send({ status: 400, message: 'BAD REQUEST' })
     } catch (error) {
       console.log(error)
-      res.send({ status: 'Only .png, .jpg and .jpeg format allowed!' })
+      res.send({ status: 'Error, please try again later' })
     }
   } else {
     res.status(403).send({ success: false, message: 'FORBIDEN' })
