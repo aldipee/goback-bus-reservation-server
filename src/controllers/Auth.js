@@ -37,7 +37,7 @@ module.exports = {
 
       if (!(await UsersModel.isUsernameExist(username))) {
         // if username is not avaiable, user cannot login
-        res.status(400).send({ status: 'ERR', msg: 'Invalid username or passsword' })
+        res.status(200).send({ status: 'ERR', msg: 'Invalid username or passsword' })
       } else {
         // otherwise, if username avaiable, get some credintials info form that user
         const userData = await UsersModel.getUserData(username)
@@ -56,7 +56,7 @@ module.exports = {
                   username: userData.username
                 },
                 process.env.AUTH_KEY,
-                { expiresIn: '5m' }
+                { expiresIn: '1d' }
               )
             } else if (userData.role_id === 2) {
               const dataAgent = await AgentsModel.getDataAgent(userData.id)
@@ -91,7 +91,7 @@ module.exports = {
                 status: 'OK',
                 msg: `Welcome back ${data.fullName}`,
                 token,
-                profileData: data
+                role: userData.role_id
               })
             } else {
               res.status(200).send({

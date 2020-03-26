@@ -30,13 +30,16 @@ const insert = (name, userId, createdBy) => {
  */
 const getAll = () => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM agents', (err, result, field) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
+    db.query(
+      'SELECT agents.name as agent_name, agents.id as agent_id, users.username, users.email, users.id as user_id  FROM agents JOIN users ON agents.user_id = users.id',
+      (err, result, field) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
       }
-    })
+    )
   })
 }
 

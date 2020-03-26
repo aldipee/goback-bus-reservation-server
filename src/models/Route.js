@@ -4,7 +4,6 @@ const db = require('../utils/db')
  * All Rotues Avaiable
  * @returns {array_of_object} All routes
  */
-
 const getAll = () => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM routes', (err, results, field) => {
@@ -47,8 +46,10 @@ const insert = (destination, origin, distance, createdBy) => {
 }
 
 /**
- *
- * @param {Number} routeId
+ * Get routes data based on Route ID
+ * @todo Add Validation for parameter
+ * @param {Number} routeId ID route its self as identifier
+ * @returns {Object} Route information [Destination, Origin, Distance, createdBy]
  */
 const getRouteById = routeId => {
   return new Promise((resolve, reject) => {
@@ -63,6 +64,13 @@ const getRouteById = routeId => {
   })
 }
 
+/**
+ * Update Route based on Route ID
+ * @todo Add Validationd for all parameters
+ * @param {Number} routeId
+ * @param {Object} objData Data for update
+ * @returns {Boolean} If data updated will return true, otherwise false
+ */
 const updateRouteById = (routeId, objData) => {
   return new Promise((resolve, reject) => {
     const { destination, destinationCode, origin, originCode, distance } = objData
@@ -79,6 +87,11 @@ const updateRouteById = (routeId, objData) => {
   })
 }
 
+/**
+ *  Delete data based on Route ID
+ * @param {Number} routeId as Identifier
+ * @returns {Boolean} If route deleted will return true, otherwise false
+ */
 const deleteRouteById = routeId => {
   return new Promise((resolve, reject) => {
     const query = `DELETE FROM routes WHERE id = '${routeId}'`

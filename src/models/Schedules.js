@@ -2,12 +2,13 @@ const db = require('../utils/db')
 
 /**
  * Insert Schedules data
+ * @todo Add validation for all parameters
  * @param {Date} time Depature time string data source from client
  * @param {Number} routeId ID Route source come from client
  * @param {Number} busId ID bus, source form Client
  * @param {Number} agentId ID Agent. source from session
  * @param {Number} createdBy ID users who created the data. Source from session
- * @returns {boolean}
+ * @returns {boolean} If data inserted will return true, otherwise false
  */
 
 const create = (time, routeId, busId, agentId, createdBy, date) => {
@@ -29,7 +30,11 @@ const create = (time, routeId, busId, agentId, createdBy, date) => {
     return new Error('Parameter for create Schedules is Incorrect')
   }
 }
-
+/**
+ * All data schedules
+ * @param {Object} route
+ * @param {Object} conditions
+ */
 const allSchedule = (route, conditions) => {
   return new Promise((resolve, reject) => {
     let { page, limit, sort, date } = conditions

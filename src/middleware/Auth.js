@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 
 module.exports = {
   validAuthToken: (req, res, next) => {
+    console.log(req.headers)
     const { authorization } = req.headers
     // if there is token request
     if (authorization && authorization.startsWith('Bearer')) {
