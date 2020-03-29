@@ -55,5 +55,20 @@ module.exports = {
     } else {
       res.status(401).send({ status: 'FORBIDDEN' })
     }
+  },
+  getBusById: async (req, res) => {
+    if (req.user.userRole === 2 || req.user.userRole === 1) {
+      try {
+        const results = await BusModel.getBusByAgentId(req.params.id)
+        results.length
+          ? res.status(200).send({ status: 'OK', data: results })
+          : res.status(400).send({ status: 'FAILED' })
+      } catch (error) {
+        console.log(error)
+        res.status(500).send({ status: 'ERR', error })
+      }
+    } else {
+      res.status(401).send({ status: 'FORBIDDEN' })
+    }
   }
 }

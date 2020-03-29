@@ -6,15 +6,15 @@ module.exports = {
   allData: async (req, res) => {
     // get all data
     if (req.user.userRole === 1) {
-      let { search, sort, sortBy, page, perPage } = req.query
-      search = search || ''
+      let { search, sort, sortBy, page, limit } = req.query
+      search = (search && { key: search.key, value: search.value }) || { key: 'fullName', value: '' }
       sort = sort || 0
       sortBy = sortBy || 'id'
       page = page || 1
-      perPage = perPage || 5
+      perPage = limit || 5
 
       const conditions = { search, sort, sortBy, page, perPage }
-
+      console.log(conditions)
       const results = await UserModel.getAllUsersData(conditions)
       try {
         // in order to send data to client, we hava to delete some creditial info from the object

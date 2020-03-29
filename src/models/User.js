@@ -17,8 +17,8 @@ const getAllUsersData = conditions => {
     // 'si%'`
     const query = `SELECT users.id as id, users.username, users.email, userdetails.fullName, userdetails.gender,
     userdetails.bod, userdetails.balance, userdetails.phoneNumber, userdetails.avatar
-    FROM users JOIN userdetails WHERE users.id = userdetails.userId  AND  fullName LIKE 
-    '${search}%' ORDER BY ${sortBy} ${sort ? 'ASC' : 'DESC'}
+    FROM users JOIN userdetails WHERE users.id = userdetails.userId  AND  ${search.key} LIKE 
+    '%${search.value}%' ORDER BY ${sortBy} ${sort ? 'ASC' : 'DESC'}
     LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`
     console.log(query)
     db.query(query, (err, result) => {
@@ -39,7 +39,7 @@ const getAllUsersData = conditions => {
 const getUserDetails = userId => {
   return new Promise((resolve, reject) => {
     if (userId) {
-      const query = `SELECT fullName, balance, bod, gender, phoneNumber, fullAddress, avatar
+      const query = `SELECT id, fullName, balance, bod, gender, phoneNumber, fullAddress, avatar
        FROM userdetails WHERE userId = ${userId}`
       db.query(query, (err, result) => {
         if (err) {
@@ -215,6 +215,23 @@ const isProfileCompleted = userId => {
   return new Promise((resolve, reject) => {
     if (userId) {
       const query = `SELECT COUNT(*) AS total FROM userdetails WHERE userId='${userId}'`
+      db.query(query, (err, results) => {
+        if (!err) {
+          results[0].total ? resolve(true) : resolve(false)
+        } else {
+          reject(err)
+        }
+      })
+    } else {
+      reject(new Error('Incorrect parameter for isProfileCompleted method'))
+    }
+  })
+}
+
+const getAllProfileById = userId => {
+  return new Promise((resolve, reject) => {
+    if (userId) {
+      const query = `SELECT * FROM users JOIN userdetails ON userdetails.user_id = users.id JOIN `
       db.query(query, (err, results) => {
         if (!err) {
           results[0].total ? resolve(true) : resolve(false)

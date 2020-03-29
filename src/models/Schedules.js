@@ -64,6 +64,12 @@ const allSchedule = (route, conditions) => {
   })
 }
 
+/**
+ * All data schedules whitous conditions
+ * @param {Object} route
+ * @param {Object} conditions
+ */
+
 const totalSchedule = (route, date) => {
   const query = `SELECT COUNT (*) as total
   FROM schedules JOIN routes ON schedules.route_id = routes.id JOIN buses ON schedules.bus_id = buses.id 

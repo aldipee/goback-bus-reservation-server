@@ -4,13 +4,34 @@ const db = require('../utils/db')
  * All Rotues Avaiable
  * @returns {array_of_object} All routes
  */
-const getAll = () => {
+
+const getAll = conditions => {
+  const { page, limit, sort, search, show } = conditions
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM routes', (err, results, field) => {
+    const query = `SELECT * FROM routes WHERE ${search.key} LIKE '%${search.value}%' ORDER BY
+    ${sort.key} ${sort.value ? 'ASC' : 'DESC'} ${
+      !show == 'all' ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : ''
+    }
+    `
+    console.log(query)
+    db.query(query, (err, results, field) => {
       if (err) {
         reject(err)
       } else {
         results ? resolve(results) : resolve(false)
+      }
+    })
+  })
+}
+
+const totalRoutes = () => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT COUNT(*) as total FROM routes`
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result[0])
       }
     })
   })
@@ -111,5 +132,6 @@ module.exports = {
   insert,
   updateRouteById,
   getRouteById,
-  deleteRouteById
+  deleteRouteById,
+  totalRoutes
 }

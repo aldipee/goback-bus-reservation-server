@@ -1,12 +1,47 @@
 const RouteModel = require('../models/Route')
 
 module.exports = {
-  allRoutes: async (req, res) => {
+  aRoute: async (req, res) => {
     if ((req.user && req.user.userRole === 1) || req.user.userRole === 2) {
-      const result = await RouteModel.getAll()
+      const result = await RouteModel.getRouteById(req.params.id)
       result
         ? res.status(200).send({ status: 'Ok', data: result })
         : res.status(500).send({ status: 'FAILED', statusCode: 500 })
+    } else {
+      res.status(401).send({ status: 401, message: 'UNAUTHORIZATION' })
+    }
+  },
+  allRoutes: async (req, res) => {
+    if ((req.user && req.user.userRole === 1) || req.user.userRole === 2) {
+      try {
+        let { limit, sort, search, page, show } = req.query
+        limit = parseInt(limit) || 5
+        page = parseInt(page) || 1
+        sort = (sort && { key: sort.key, value: sort.value }) || { key: 'origin', value: 1 }
+        search = (search && { key: 'origin', value: search.value }) || { key: 'origin', value: '' }
+
+        const conditions = { limit, page, search, sort, show }
+        const totalRoutes = await RouteModel.totalRoutes()
+        console.log(totalRoutes)
+        const result = await RouteModel.getAll(conditions)
+
+        conditions.totalPage = Math.ceil(totalRoutes.total / limit)
+        conditions.nextLink =
+          page >= conditions.totalPage ? null : process.env.APP_URL.concat(`routes?page=${page + 1}`)
+        conditions.prevLink = page <= 1 ? null : process.env.APP_URL.concat(`routes?page=${page - 1}`)
+        conditions.totalData = totalRoutes.total
+        delete conditions.search
+        delete conditions.sort
+        result
+          ? res.status(200).send({
+              status: 'Ok',
+              pageInfo: conditions,
+              data: result
+            })
+          : res.status(500).send({ status: 'FAILED', statusCode: 500 })
+      } catch (error) {
+        console.log(error)
+      }
     } else {
       res.status(401).send({ status: 401, message: 'UNAUTHORIZATION' })
     }

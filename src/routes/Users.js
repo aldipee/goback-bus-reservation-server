@@ -88,6 +88,34 @@ router.get('/profile', async (req, res) => {
   }
 })
 
+router.get('/details/:id', async (req, res) => {
+  if (!req.user) {
+    res.status.send({ status: 'NEED LOGIN TO ACCESS THIS PAGE' })
+  } else {
+    if (await UserModels.isProfileCompleted(req.params.id)) {
+      let { show, limit, page, sort, sortBy } = req.query
+      limit = limit || 5
+      page = page || 1
+      const conditions = {
+        page,
+        limit,
+        // Sort by fullName, time, date
+        sort: (sort && sortBy && { key: sortBy, value: sort }) || { key: 'fullName', value: 1 }
+      }
+      show = show || 'all'
+      const { userId } = req.user
+      const currentTicket = await ReservationModel.getUserReservation(userId, 0, conditions)
+
+      const data = {
+        status: 'OK',
+        yourReservation: currentTicket
+      }
+
+      res.status(200).send(data)
+    }
+  }
+})
+
 router.get('/history', async (req, res) => {
   if (!req.user) {
     res.status.send({ status: 'NEED LOGIN TO ACCESS THIS PAGE' })
@@ -116,6 +144,34 @@ router.get('/history', async (req, res) => {
       show === 'history' && delete data.yourBooking
       res.status(200).send(data)
     }
+  }
+})
+
+// This will Call on FE on user/profile/id
+router.get('/profile/:id', async (req, res) => {
+  if (!req.user) {
+    res.send({ status: 'Authorization Needed!' })
+  } else {
+    let { show, limit, page, sort, sortBy } = req.query
+    limit = limit || 5
+    page = page || 1
+    const conditions = {
+      page,
+      limit,
+      // Sort by fullName, time, date
+      sort: (sort && sortBy && { key: sortBy, value: sort }) || { key: 'fullName', value: 1 }
+    }
+    console.log('fuuuuf', conditions)
+    const { id } = req.params
+    const data = await UserModels.getUserDetails(id)
+    data.avatar = `//${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${data.avatar}`
+    const currentTicket = await ReservationModel.getUserReservation(id, 0, conditions)
+
+    res.status(200).send({
+      status: 'OK',
+      profileData: data,
+      reservationsData: currentTicket
+    })
   }
 })
 
