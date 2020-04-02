@@ -69,7 +69,7 @@ module.exports = {
                   agentId: dataAgent.id
                 },
                 process.env.AUTH_KEY,
-                { expiresIn: '15m' }
+                { expiresIn: '1d' }
               )
             } else {
               token = jwt.sign(
@@ -98,6 +98,7 @@ module.exports = {
                 status: 'OK',
                 msg: `Welcome back ${userData.username}`,
                 token,
+                role: userData.role_id,
                 profileData: 'Your profile is not completed. You would not be able to make reservation'
               })
             }

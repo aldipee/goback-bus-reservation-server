@@ -10,9 +10,10 @@ const getAll = conditions => {
   return new Promise((resolve, reject) => {
     const query = `SELECT * FROM routes WHERE ${search.key} LIKE '%${search.value}%' ORDER BY
     ${sort.key} ${sort.value ? 'ASC' : 'DESC'} ${
-      !show == 'all' ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : ''
-    }
+      !show ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : ''
+      }
     `
+    console.log(conditions)
     console.log(query)
     db.query(query, (err, results, field) => {
       if (err) {

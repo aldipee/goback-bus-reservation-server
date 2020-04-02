@@ -10,11 +10,11 @@ const db = require('../utils/db')
  * @returns {boolean} Created success will return true, otherwise will return false
  */
 
-const insert = (name, totalSeat, agentId, createdBy) => {
+const insert = (name, totalSeat, agentId, createdBy, picture) => {
   return new Promise((resolve, reject) => {
     if (name && totalSeat && agentId && createdBy) {
       db.query(
-        `INSERT INTO buses (name, total_seat, agent_id, created_by) VALUES ('${name}','${totalSeat}','${agentId}','${createdBy}')`,
+        `INSERT INTO buses (name, total_seat, agent_id, created_by, picture) VALUES ('${name}','${totalSeat}','${agentId}','${createdBy}', '${picture}')`,
         (err, results, field) => {
           if (err) {
             reject(err)
@@ -56,9 +56,9 @@ const busDataById = idBuses => {
  * @param {Number} agentId From user's sessions
  * @returns {Boolean} If Successfully will return true, otherwise false
  */
-const update = (idBuses, busName, totalSeat, agentId) => {
+const update = (idBuses, busName, totalSeat, agentId, picture) => {
   return new Promise((resolve, reject) => {
-    const query = `UPDATE buses SET name='${busName}', total_seat='${totalSeat}' WHERE id='${idBuses}'
+    const query = `UPDATE buses SET name='${busName}', total_seat='${totalSeat}', picture='${picture}' WHERE id='${idBuses}'
     AND agent_id = '${agentId}'`
     db.query(query, (err, results, field) => {
       if (err) {

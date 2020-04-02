@@ -7,10 +7,13 @@ module.exports = {
           const createdBy = req.user.userId
           const agentId = req.user.agentId || req.body.agentId || null
           const { busName, totalSeat } = req.body
-          const results = await BusModel.insert(busName, totalSeat, agentId, createdBy)
+          console.log(req.body)
+          console.log(req.file)
+          const { filename } = req.file
+          const results = await BusModel.insert(busName, totalSeat, agentId, createdBy, filename)
           results
-            ? res.status(200).send({ status: 'OK', message: 'New Bus Inserted' })
-            : res.status(500).send({ status: 'ERR', statusCode: 500 })
+            ? res.status(200).send({ status: true, message: 'New Bus Inserted' })
+            : res.status(500).send({ status: false, statusCode: 500 })
         } catch (error) {
           console.log(error)
         }
@@ -25,11 +28,12 @@ module.exports = {
     if (req.user.userRole === 2) {
       try {
         const { id } = req.params
+        const { filename } = req.file
         let { busName, totalSeat } = req.body
         const prevData = await BusModel.busDataById(id)
         busName = busName || prevData.name
         totalSeat = totalSeat || prevData.total_seat
-        const result = await BusModel.update(id, busName, totalSeat, req.user.agentId)
+        const result = await BusModel.update(id, busName, totalSeat, req.user.agentId, filename)
         result
           ? res.status(200).send({ status: 'OK', message: 'Bus Updated' })
           : res.status(400).send({ status: 'FAILED', message: 'BAD REQUEST' })
@@ -57,6 +61,37 @@ module.exports = {
     }
   },
   getBusById: async (req, res) => {
+    if (req.user.userRole === 2 || req.user.userRole === 1) {
+      try {
+        const results = await BusModel.getBusByAgentId(req.params.id)
+        results.length
+          ? res.status(200).send({ status: 'OK', data: results })
+          : res.status(400).send({ status: 'FAILED' })
+      } catch (error) {
+        console.log(error)
+        res.status(500).send({ status: 'ERR', error })
+      }
+    } else {
+      res.status(401).send({ status: 'FORBIDDEN' })
+    }
+  },
+  getSingleBus: async (req, res) => {
+    if (req.user.userRole === 2 || req.user.userRole === 1) {
+      try {
+        const results = await BusModel.busDataById(req.params.id)
+
+        results
+          ? res.status(200).send({ status: 'OK', data: results })
+          : res.status(400).send({ status: 'FAILED' })
+      } catch (error) {
+        console.log(error)
+        res.status(500).send({ status: 'ERR', error })
+      }
+    } else {
+      res.status(401).send({ status: 'FORBIDDEN' })
+    }
+  },
+  all: async (req, res) => {
     if (req.user.userRole === 2 || req.user.userRole === 1) {
       try {
         const results = await BusModel.getBusByAgentId(req.params.id)
