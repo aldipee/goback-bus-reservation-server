@@ -89,13 +89,17 @@ module.exports = {
     }
   },
   deleteRoute: async (req, res) => {
-    if (req.user.userRole === 1) {
-      const res = await RouteModel.deleteRouteById(req.params.idRoute)
-      res
-        ? res.status(200).send({ status: 'OK', message: 'Route deleted' })
-        : res.status(404).send({ status: 'FAILED', message: 'ROUTE NOT FOUND' })
-    } else {
-      res.status(401).send({ status: 'FORBIDDEN' })
+    try {
+      if (req.user.userRole === 1) {
+        const result = await RouteModel.deleteRouteById(req.params.idRoute)
+        result
+          ? res.status(200).send({ status: 'OK', message: 'Route deleted' })
+          : res.status(404).send({ status: 'FAILED', message: 'ROUTE NOT FOUND' })
+      } else {
+        res.status(401).send({ status: 'FORBIDDEN' })
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 }

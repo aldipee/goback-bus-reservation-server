@@ -1,10 +1,7 @@
 const router = require('express').Router()
-
 const UserController = require('../controllers/Users')
-
 const UserModels = require('../models/User')
 const ReservationModel = require('../models/Reservations')
-
 const multer = require('multer')
 
 const storage = multer.diskStorage({

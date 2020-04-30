@@ -5,13 +5,13 @@ const db = require('../utils/db')
  * @returns {array_of_object} All routes
  */
 
-const getAll = conditions => {
+const getAll = (conditions) => {
   const { page, limit, sort, search, show } = conditions
   return new Promise((resolve, reject) => {
-    const query = `SELECT * FROM routes WHERE ${search.key} LIKE '%${search.value}%' ORDER BY
-    ${sort.key} ${sort.value ? 'ASC' : 'DESC'} ${
-      !show ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : ''
-      }
+    const query = `SELECT * FROM routes WHERE ${search.key} LIKE '%${
+      search.value
+    }%' AND is_deleted = 0 ORDER BY
+    ${sort.key} ${sort.value ? 'ASC' : 'DESC'} ${!show ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : ''}
     `
     console.log(conditions)
     console.log(query)
@@ -73,7 +73,7 @@ const insert = (destination, origin, distance, createdBy) => {
  * @param {Number} routeId ID route its self as identifier
  * @returns {Object} Route information [Destination, Origin, Distance, createdBy]
  */
-const getRouteById = routeId => {
+const getRouteById = (routeId) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT * FROM routes WHERE id = '${routeId}'`
     db.query(query, (err, result) => {
@@ -114,9 +114,9 @@ const updateRouteById = (routeId, objData) => {
  * @param {Number} routeId as Identifier
  * @returns {Boolean} If route deleted will return true, otherwise false
  */
-const deleteRouteById = routeId => {
+const deleteRouteById = (routeId) => {
   return new Promise((resolve, reject) => {
-    const query = `DELETE FROM routes WHERE id = '${routeId}'`
+    const query = `UPDATE routes SET is_deleted = 1 WHERE id = '${routeId}'`
     db.query(query, (err, result) => {
       if (err) {
         reject(err)
