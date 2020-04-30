@@ -50,6 +50,9 @@ app.use((err, req, res, next) => {
   if (err.code === 'FORMATTYPE') {
     res.status(400).send({ err: err.message })
   }
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    res.status(400).send({ err: 'File Size is too big' })
+  }
   res.status(err.status || 500)
   res.send(err.status)
 })

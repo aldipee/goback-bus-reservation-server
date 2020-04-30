@@ -14,18 +14,25 @@ module.exports = {
       const isUsernameAvaiable = await UsersModel.isUsernameExist(username)
       if (!isUsernameAvaiable) {
         // if username not available, then user can register
-        try {
-          const isRegisterSuccess = await UsersModel.insert(username, password, email, 3)
-          const userVerifCode = await UsersModel.getUserDataById(isRegisterSuccess.data.insertId)
-          const verifyLink = `${process.env.APP_HOST}:${process.env.APP_PORT}/auth/verify?code=${userVerifCode.verified_code}&action=${isRegisterSuccess.data.insertId}`
-          isRegisterSuccess.data.insertId
-            ? res.status(201).send({ isRegisterSuccess, verifyLink })
-            : res.status({ success: false, msg: 'Error' })
-        } catch (error) {
-          res.status(401).send({ status: 'ERR', error })
+        let req = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+        if (req.test(email)) {
+          try {
+            const isRegisterSuccess = await UsersModel.insert(username, password, email, 3)
+            const userVerifCode = await UsersModel.getUserDataById(isRegisterSuccess.data.insertId)
+            const verifyLink = `${process.env.APP_HOST}:${process.env.APP_PORT}/auth/verify?code=${userVerifCode.verified_code}&action=${isRegisterSuccess.data.insertId}`
+            isRegisterSuccess.data.insertId
+              ? res.status(201).send({ isRegisterSuccess, verifyLink })
+              : res.status({ success: false, msg: 'Error' })
+          } catch (error) {
+            res.status(401).send({ status: 'ERR', error })
+          }
+        } else {
+          res.status(401).send({ success: false, message: 'Email format is invalid', error_code: '1001' })
         }
       } else {
-        res.status(401).send({ status: 'FAILED', msg: 'username already exist' })
+        res
+          .status(401)
+          .send({ success: false, status: 'FAILED', message: 'username already exist', error_code: '1002' })
       }
     }
   },
@@ -56,7 +63,9 @@ module.exports = {
 
       if (!(await UsersModel.isUsernameExist(username))) {
         // if username is not avaiable, user cannot login
-        res.status(200).send({ status: 'ERR', msg: 'Invalid username or passsword' })
+        res
+          .status(200)
+          .send({ success: false, status: 'ERR', msg: 'Invalid username or passsword', error_code: '1003' })
       } else {
         // otherwise, if username avaiable, get some credintials info form that user
         const userData = await UsersModel.getUserData(username)
@@ -124,7 +133,12 @@ module.exports = {
               })
             }
           } else {
-            res.status(400).send({ status: 'ERR', msg: 'Invalid username or passsword' })
+            res.status(400).send({
+              success: false,
+              error_code: '1003',
+              status: 'ERR',
+              msg: 'Invalid username or passsword'
+            })
           }
         } else {
           res.status(200).send({ status: 'NOTVERIFIED', msg: 'Please verify your account' })
@@ -151,10 +165,17 @@ module.exports = {
           .status(201)
           .send({ status: 'OK', message: 'Your account has been verified. Please login to countinue' })
       } else {
-        res.status(400).send({ status: 'FAILED' })
+        res.status(400).send({
+          success: false,
+          status: 'FAILED',
+          error_code: '1004',
+          message: 'Failed to verify your account'
+        })
       }
     } else {
-      res.status(400).send({ status: 'BAD REQUEST' })
+      res
+        .status(400)
+        .send({ success: false, status: 'BAD REQUEST', message: 'Invalid Request', error_code: '1005' })
     }
   },
   token: (req, res) => {

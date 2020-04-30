@@ -24,12 +24,14 @@ module.exports = {
           ? res.status(200).send({ status: 'OK', pageInfo: conditions, data: result })
           : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
       } catch (error) {
-        res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+        res.status(400).send({ success: false, status: 401, err: 'BAD REQUEST', error_code: '1101' })
       }
     } else {
       res.status(401).send({
         status: 401,
-        err: 'FORBIDDEN'
+        err: 'FORBIDDEN',
+        message: 'UNAUTHORIZATIOON',
+        error_code: '1007'
       })
     }
   },
@@ -50,12 +52,14 @@ module.exports = {
           ? res.status(200).send({ status: 'OK', data: result })
           : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
       } catch (error) {
-        res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+        res.status(400).send({ status: 401, err: 'BAD REQUEST', error_code: '1101' })
       }
     } else {
       res.status(401).send({
         status: 401,
-        err: 'FORBIDDEN'
+        err: 'FORBIDDEN',
+        message: 'UNAUTHORIZATIOON',
+        error_code: '1007'
       })
     }
   },

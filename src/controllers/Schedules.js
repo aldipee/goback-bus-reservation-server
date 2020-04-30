@@ -161,6 +161,7 @@ module.exports = {
         fetchDataWithSeat().then((data) => {
           data
             ? res.status(200).send({
+                success: true,
                 status: 'OK',
                 limit,
                 totalData: totalResults,

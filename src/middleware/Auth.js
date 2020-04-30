@@ -15,14 +15,18 @@ module.exports = {
           req.user = token
           next()
         } else {
-          res.status(403).send({ status: 403, message: 'Unauthorization' })
+          res
+            .status(403)
+            .send({ success: false, status: 403, message: 'Unauthorization', error_code: '1006' })
         }
       } catch (error) {
         console.log(error)
         res.status(500).send({ status: 500, message: error })
       }
     } else {
-      res.status(403).send({ status: 403, message: 'Authorization needed' })
+      res
+        .status(403)
+        .send({ success: false, status: 403, message: 'Authorization needed', error_code: '1007' })
     }
   }
 }
