@@ -3,10 +3,49 @@ const ReservationModel = require('../models/Reservations')
 const UserModel = require('../models/User')
 
 module.exports = {
+  allReservations: async (req, res) => {
+    if (req.user.userRole === 1) {
+      try {
+        // Star pagination
+        let { search, sort, page, limit } = req.query
+        search = search || { key: 'fullName', value: '' }
+        sort = sort || { key: 'fullName', value: 0 }
+        page = page || 1
+        perPage = limit || 5
+
+        const conditions = { search, sort, page, perPage }
+        const result = await ReservationModel.getAllReservations(conditions)
+        const totalData = await ReservationModel.getTotalReservations()
+        conditions.totalData = totalData
+        delete conditions.sort
+        delete conditions.search
+        console.log(`from routes`, conditions)
+        result
+          ? res.status(200).send({ status: 'OK', pageInfo: conditions, data: result })
+          : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+      } catch (error) {
+        res.status(400).send({ status: 401, err: 'BAD REQUEST' })
+      }
+    } else {
+      res.status(401).send({
+        status: 401,
+        err: 'FORBIDDEN'
+      })
+    }
+  },
   allPassenger: async (req, res) => {
     if (req.user.userRole === 2) {
       try {
-        const result = await ReservationModel.getAllReservationsByAgent(req.user.agentId)
+        // Star pagination
+        let { search, sort, page, limit } = req.query
+        search = search || { key: 'fullName', value: '' }
+        sort = sort || { key: 'fullName', value: 0 }
+        page = page || 1
+        perPage = limit || 5
+
+        const conditions = { search, sort, page, perPage }
+        const result = await ReservationModel.getMyReservations(conditions, req.user.agentId)
+        console.log(`from routes`, conditions)
         result
           ? res.status(200).send({ status: 'OK', data: result })
           : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
@@ -29,9 +68,7 @@ module.exports = {
           const price = await ReservationModel.getPriceByIdSchedule(scheduleId)
           const userBalanace = await UserModel.getUserDetails(userId)
           if (userBalanace.balance > price) {
-            const bookingCode = uuid()
-              .substr(0, 8)
-              .toUpperCase()
+            const bookingCode = uuid().substr(0, 8).toUpperCase()
             const result = await ReservationModel.insert(
               userId,
               userIdNumber,

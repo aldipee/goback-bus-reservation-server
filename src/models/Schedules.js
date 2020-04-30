@@ -42,13 +42,42 @@ const allSchedule = (route, conditions) => {
     const perPage = limit || 5
     sort = { key: sort.key, value: parseInt(sort.value) } || { key: 'id', value: 1 }
     console.log('FC', route)
-    const query = `SELECT schedules.id, schedules.time, schedules.date, agents.name as agent, buses.name as bus_name ,  routes.origin,routes.origin_code,routes.destination,routes.destination_code, routes.distance,  price.price, buses.total_seat  
+    const query = `SELECT schedules.id, schedules.time, schedules.date, agents.name as agent, agents.logo, buses.name as bus_name ,  routes.origin,routes.origin_code,routes.destination,routes.destination_code, routes.distance,  price.price, buses.total_seat  
     FROM schedules JOIN routes ON schedules.route_id = routes.id JOIN buses ON schedules.bus_id = buses.id 
     JOIN agents ON schedules.agent_id = agents.id JOIN price ON price.route_id = routes.id 
     AND price.agent_id = agents.id WHERE ${
       route.idRoute
         ? `schedules.route_id = ${route.idRoute}`
         : `routes.origin_code = '${route.originCode}' AND routes.destination_code = '${route.destinationCode}`
+    }' AND schedules.date = '${date}' ORDER BY
+    ${sort.key} ${sort.value ? 'ASC' : 'DESC'} LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`
+    console.log(query)
+    console.log(sort.value)
+    db.query(query, (err, results, field) => {
+      if (err) {
+        reject(err)
+      } else {
+        // console.log('SCHEDULES MODEL :', results)
+        results ? resolve(results) : resolve(new Error('Data not found'))
+      }
+    })
+  })
+}
+
+const mySchedules = (route, conditions, agentId) => {
+  return new Promise((resolve, reject) => {
+    let { page, limit, sort, date } = conditions
+    page = page || 1
+    const perPage = limit || 5
+    sort = { key: sort.key, value: parseInt(sort.value) } || { key: 'id', value: 1 }
+    console.log('FC', route)
+    const query = `SELECT schedules.id, schedules.time, schedules.date, agents.name as agent, buses.name as bus_name ,  routes.origin,routes.origin_code,routes.destination,routes.destination_code, routes.distance,  price.price, buses.total_seat  
+    FROM schedules JOIN routes ON schedules.route_id = routes.id JOIN buses ON schedules.bus_id = buses.id 
+    JOIN agents ON schedules.agent_id = agents.id JOIN price ON price.route_id = routes.id 
+    AND price.agent_id = agents.id WHERE ${
+      route.idRoute
+        ? `schedules.route_id = ${route.idRoute}`
+        : `routes.origin_code = '${route.originCode}'AND agents.id ='${agentId}' AND routes.destination_code = '${route.destinationCode}`
     }' AND schedules.date = '${date}' ORDER BY
     ${sort.key} ${sort.value ? 'ASC' : 'DESC'} LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`
     console.log(query)
@@ -94,8 +123,9 @@ const totalSchedule = (route, date) => {
 const update = (idSchedules, agentId, objData) => {
   return new Promise((resolve, reject) => {
     const { time, idRoute, date, idBus } = objData
-    const query = `UPDATE schedules SET time = '${time}', route_id '${idRoute}', date ='${date}', bus_id = '${idBus}' 
+    const query = `UPDATE schedules SET time = '${time}', route_id = '${idRoute}', date ='${date}', bus_id = '${idBus}' 
     WHERE id = '${idSchedules}' AND agent_id ='${agentId}'`
+    console.log(query)
     db.query(query, (err, results) => {
       if (err) {
         reject(err)
@@ -106,7 +136,7 @@ const update = (idSchedules, agentId, objData) => {
   })
 }
 
-const getSchedulesById = idSchedules => {
+const getSchedulesById = (idSchedules) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT * FROM schedules WHERE id = '${idSchedules}'`
     db.query(query, (err, results) => {
@@ -158,7 +188,7 @@ const updatePriceById = (idPrice, price) => {
   })
 }
 
-const getPriceForAgent = agentId => {
+const getPriceForAgent = (agentId) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT price.id as idPrice, price.price, routes.origin, routes.origin_code, routes.destination, routes.destination_code, 
      routes.id as route_id, routes.distance, agents.name as your_travel_name 
@@ -183,5 +213,6 @@ module.exports = {
   setPrice,
   isPriceAlreadySet,
   updatePriceById,
-  getPriceForAgent
+  getPriceForAgent,
+  mySchedules
 }

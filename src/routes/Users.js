@@ -9,7 +9,7 @@ const multer = require('multer')
 
 const storage = multer.diskStorage({
   destination: 'files/users/',
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`)
   }
 })
@@ -29,11 +29,12 @@ const upload = multer({
 router.get('/', UserController.allData)
 
 router.post('/update', upload.single('avatart'), async (req, res) => {
-  console.log(req.file)
+  console.log(req.body)
   if (req.user) {
     try {
       // Make sure requests exists
-      const { filename } = req.file
+      // const { filename } = req.file
+      console.log(req.file)
       const { userId } = req.user
       let { fullName, bod, gender, phoneNumber, address, balance } = req.body
       // set default balance to 0
@@ -45,13 +46,13 @@ router.post('/update', upload.single('avatart'), async (req, res) => {
         gender,
         phoneNumber,
         address,
-        balance,
-        filename
+        balance
       )
       const msg = `Thank you for completed your data ${fullName}, now you can use all of our services`
       result
         ? res.status(201).send({
             status: 'OK',
+            success: true,
             message: msg
           })
         : res.status(400).send({ status: 400, message: 'BAD REQUEST' })
@@ -117,6 +118,7 @@ router.get('/details/:id', async (req, res) => {
 })
 
 router.get('/history', async (req, res) => {
+  console.log(req.user)
   if (!req.user) {
     res.status.send({ status: 'NEED LOGIN TO ACCESS THIS PAGE' })
   } else {

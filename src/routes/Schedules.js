@@ -4,6 +4,10 @@ const ScheduleController = require('../controllers/Schedules')
 
 // All Schedules [public]
 router.get('/', ScheduleController.allSchedules)
+// Schedules related to agent
+router.get('/my-schedules', authMiddleware.validAuthToken, ScheduleController.agentSchedules)
+// Get Schedules by Id
+router.get('/:id', authMiddleware.validAuthToken, ScheduleController.getSchedulesById)
 // New Schedules
 router.post('/', authMiddleware.validAuthToken, ScheduleController.addSchedules)
 // Update shedules

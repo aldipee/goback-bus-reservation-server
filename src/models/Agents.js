@@ -48,7 +48,7 @@ const getAll = () => {
  * @param {number} userId as identifier for selecting data
  * @returns {Array of Object} details agent data
  */
-const getDataAgent = userId => {
+const getDataAgent = (userId) => {
   return new Promise((resolve, reject) => {
     if (!userId) {
       reject(new Error('Unvalid parameter in getDataAgent'))
@@ -72,7 +72,7 @@ const getDataAgent = userId => {
  * @param {String} bookingCode
  * @returns {Array of Object} Passenger & boarding data
  */
-const reservationsDetailsByBookingCode = bookingCode => {
+const reservationsDetailsByBookingCode = (bookingCode) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT reservations.id as idReservation, reservations.booking_code, 
     reservations.user_id_number, reservations.user_id_type, reservations.total_price, 
@@ -97,7 +97,7 @@ const reservationsDetailsByBookingCode = bookingCode => {
  * @param {String} bookingCode
  * @returns {Boolean} If Success will return true, otherwise false
  */
-const passengerCheckIn = bookingCode => {
+const passengerCheckIn = (bookingCode) => {
   return new Promise((resolve, reject) => {
     const query = `UPDATE reservations SET check_in = 1 WHERE booking_code = '${bookingCode}'`
     db.query(query, (err, result) => {
@@ -110,10 +110,24 @@ const passengerCheckIn = bookingCode => {
   })
 }
 
+const agentDetailById = (id) => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * FROM agents WHERE agents.id = ${id}`
+    db.query(query, (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        result.length ? resolve(result) : reject(new Error('No Data found'))
+      }
+    })
+  })
+}
+
 module.exports = {
   getAll,
   getDataAgent,
   insert,
   passengerCheckIn,
-  reservationsDetailsByBookingCode
+  reservationsDetailsByBookingCode,
+  agentDetailById
 }

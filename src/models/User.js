@@ -7,7 +7,7 @@ const uuid = require('uuid').v4
  * @returns {Array of Object} All users from database
  */
 
-const getAllUsersData = conditions => {
+const getAllUsersData = (conditions) => {
   return new Promise((resolve, reject) => {
     // Select all from table 'users'
     const { search, sort, sortBy, page, perPage } = conditions
@@ -31,12 +31,25 @@ const getAllUsersData = conditions => {
   })
 }
 
+const totalUsers = () => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT COUNT(*) as total FROM users`
+    db.query(query, (err, result) => {
+      if (!err) {
+        resolve({ status: true, data: result })
+      } else {
+        reject(err)
+      }
+    })
+  })
+}
+
 /**
  * Get User Profile Detail based on Primary user ID
  * @param {numer} userId
  * @returns {object} of Profile data
  */
-const getUserDetails = userId => {
+const getUserDetails = (userId) => {
   return new Promise((resolve, reject) => {
     if (userId) {
       const query = `SELECT id, fullName, balance, bod, gender, phoneNumber, fullAddress, avatar
@@ -60,7 +73,7 @@ const getUserDetails = userId => {
  * @param {string} username
  * @returns {object} data based on username
  */
-const getUserData = username => {
+const getUserData = (username) => {
   if (username) {
     return new Promise((resolve, reject) => {
       db.query(`SELECT * FROM users WHERE username='${username}'`, (err, result, fields) => {
@@ -76,7 +89,7 @@ const getUserData = username => {
   }
 }
 
-const getUserDataById = userId => {
+const getUserDataById = (userId) => {
   if (userId) {
     return new Promise((resolve, reject) => {
       db.query(`SELECT verified_code FROM users WHERE id='${userId}'`, (err, result, fields) => {
@@ -126,7 +139,8 @@ const insert = (username, password, email, role = 3) => {
  * @return {Boolean} True for exist, else for does not exist
  */
 
-const isUsernameExist = username => {
+const isUsernameExist = (username) => {
+  console.log(username)
   return new Promise((resolve, reject) => {
     db.query(`SELECT COUNT(*) AS total FROM users WHERE username='${username}'`, (err, results, field) => {
       if (!err) {
@@ -143,7 +157,7 @@ const isUsernameExist = username => {
  * @param {*} userId
  */
 
-const remove = userId => {
+const remove = (userId) => {
   return new Promise((resolve, reject) => {
     db.query(`DELETE FROM users WHERE id='${userId}'`, (err, result, field) => {
       if (!err) {
@@ -211,7 +225,7 @@ const insertUserDetails = (userId, fullName, bod, gender, phoneNumber, fullAddre
   })
 }
 
-const isProfileCompleted = userId => {
+const isProfileCompleted = (userId) => {
   return new Promise((resolve, reject) => {
     if (userId) {
       const query = `SELECT COUNT(*) AS total FROM userdetails WHERE userId='${userId}'`
@@ -228,7 +242,7 @@ const isProfileCompleted = userId => {
   })
 }
 
-const getAllProfileById = userId => {
+const getAllProfileById = (userId) => {
   return new Promise((resolve, reject) => {
     if (userId) {
       const query = `SELECT * FROM users JOIN userdetails ON userdetails.user_id = users.id JOIN `
@@ -256,5 +270,6 @@ module.exports = {
   insertUserDetails,
   isProfileCompleted,
   getUserDetails,
-  getUserDataById
+  getUserDataById,
+  totalUsers
 }

@@ -5,6 +5,7 @@ module.exports = {
   // get All users data
   allData: async (req, res) => {
     // get all data
+    console.log(req.user)
     if (req.user.userRole === 1) {
       let { search, sort, sortBy, page, limit } = req.query
       search = (search && { key: search.key, value: search.value }) || { key: 'fullName', value: '' }
@@ -16,14 +17,22 @@ module.exports = {
       const conditions = { search, sort, sortBy, page, perPage }
       console.log(conditions)
       const results = await UserModel.getAllUsersData(conditions)
+      const totalAllData = await UserModel.totalUsers()
+      conditions.totalPage = Math.ceil(totalAllData.data[0].total / perPage)
+      conditions.totalData = totalAllData.data[0].total
+      delete conditions.search
+      delete conditions.sort
+      delete conditions.sortBy
+      console.log(totalAllData)
       try {
         // in order to send data to client, we hava to delete some creditial info from the object
         const data = results.data.map((element, index) => {
           delete element.password
           return element
         })
-        res.status(200).send({ status: 'OK', totalData: data.length, data })
+        res.status(200).send({ status: 'OK', pageInfo: conditions, totalData: data.length, data })
       } catch (err) {
+        console.log(err)
         res.status(500).send({ success: false, err })
       }
     } else {

@@ -11,6 +11,21 @@ router.get('/', async (req, res) => {
       : res.status(400).send({ status: 'NOTFOUND', message: 'Data not found' })
   }
 })
+
+// Get agent profile
+router.get('/my-profile', async (req, res) => {
+  if ((req.user && req.user.userRole === 1) || req.user.userRole === 2) {
+    let id = req.params.id || req.user.agentId
+    //${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${results[0].logo}
+
+    const results = await AgentsModel.agentDetailById(id)
+    results[0].logo = `//${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${results[0].logo}`
+    results
+      ? res.status(200).send({ status: 'OK', totalData: results.length, data: results[0] })
+      : res.status(400).send({ status: 'NOTFOUND', message: 'Data not found' })
+  }
+})
+
 router.post('/check-in', async (req, res) => {
   console.log(req.user)
   if (req.user.userRole === 2) {

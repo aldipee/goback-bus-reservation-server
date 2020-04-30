@@ -29,6 +29,25 @@ module.exports = {
       }
     }
   },
+  checkUsername: async (req, res) => {
+    // make sure client has requiest
+    if (req.body) {
+      const { username } = req.body
+      console.log(req.body)
+      const isUsernameAvaiable = await UsersModel.isUsernameExist(username)
+      console.log(isUsernameAvaiable)
+      if (!isUsernameAvaiable) {
+        // if username not available, then user can register
+        try {
+          res.status(200).send({ status: 'OK' })
+        } catch (error) {
+          res.status(401).send({ status: 'ERR', error })
+        }
+      } else {
+        res.status(200).send({ status: 'FAILED', msg: 'username already exist' })
+      }
+    }
+  },
 
   // User login
   login: async (req, res) => {
@@ -80,7 +99,7 @@ module.exports = {
                   username: userData.username
                 },
                 process.env.AUTH_KEY,
-                { expiresIn: '55m' }
+                { expiresIn: '1d' }
               )
             }
             if (await UsersModel.isProfileCompleted(userData.id)) {
@@ -91,7 +110,8 @@ module.exports = {
                 status: 'OK',
                 msg: `Welcome back ${data.fullName}`,
                 token,
-                role: userData.role_id
+                role: userData.role_id,
+                isProfileCompleted: true
               })
             } else {
               res.status(200).send({
@@ -99,6 +119,7 @@ module.exports = {
                 msg: `Welcome back ${userData.username}`,
                 token,
                 role: userData.role_id,
+                isProfileCompleted: false,
                 profileData: 'Your profile is not completed. You would not be able to make reservation'
               })
             }
@@ -106,7 +127,7 @@ module.exports = {
             res.status(400).send({ status: 'ERR', msg: 'Invalid username or passsword' })
           }
         } else {
-          res.status(403).send({ status: 'NOTVERIFIED', msg: 'Please verify your account' })
+          res.status(200).send({ status: 'NOTVERIFIED', msg: 'Please verify your account' })
         }
       }
     }
@@ -134,6 +155,19 @@ module.exports = {
       }
     } else {
       res.status(400).send({ status: 'BAD REQUEST' })
+    }
+  },
+  token: (req, res) => {
+    console.log(req.body.token)
+    if (req.body.token.startsWith('Bearer')) {
+      let token = req.body.token.slice(7, req.body.token.length)
+
+      token = jwt.verify(token, process.env.AUTH_KEY)
+      console.log(token)
+      token ? res.send({ valid: true }) : res.send({ valid: false })
+    } else {
+      console.log('assa')
+      res.send({ valid: false, msg: 'token unrecognized' })
     }
   }
 }

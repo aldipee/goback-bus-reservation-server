@@ -4,7 +4,7 @@ const db = require('../utils/db')
  * This function is being before user create reservations on Reservation controller
  * @param {number} idSchedule
  */
-const getPriceByIdSchedule = idSchedule => {
+const getPriceByIdSchedule = (idSchedule) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT price.price FROM price JOIN schedules ON price.route_id  = schedules.route_id 
     AND price.agent_id = schedules.agent_id WHERE schedules.id = ${idSchedule}`
@@ -72,7 +72,7 @@ const getSeats = (idSchedule, route) => {
             seatsBooked.push(data.seat_number)
           })
           const seatsAvailable = [...Array.from({ length: results[0].total_seat }, (v, k) => k + 1)].filter(
-            seat => !seatsBooked.includes(seat)
+            (seat) => !seatsBooked.includes(seat)
           )
 
           resolve({ seatsBooked, seatsAvailable })
@@ -89,7 +89,7 @@ const getSeats = (idSchedule, route) => {
  *
  * @param {*} routeId
  */
-const getReservationByRoute = async routeId => {
+const getReservationByRoute = async (routeId) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT reservations.id, reservations.user_id_number, reservations.user_id_type, reservations.seat_number, reservations.check_in, users.username, users.email, schedules.time, routes.origin, routes.destination, routes.distance, buses.name, buses.total_seat, agents.name, price.price FROM reservations JOIN schedules ON reservations.schedule_id = schedules.id JOIN users ON users.id = reservations.user_id JOIN buses ON buses.id = schedules.bus_id JOIN routes ON routes.id = schedules.route_id JOIN agents ON schedules.agent_id = agents.id JOIN price ON price.route_id = schedules.route_id AND price.agent_id = agents.id WHERE schedules.route_id = ${routeId}`
     db.query(query, (err, results, field) => {
@@ -122,7 +122,7 @@ const getUserReservation = (userId, checkIn, conditions) => {
   JOIN routes ON routes.id = schedules.route_id JOIN  buses ON schedules.bus_id = buses.id JOIN userdetails ON reservations.user_id = userdetails.userId
   JOIN agents ON schedules.agent_id = schedules.agent_id  JOIN price ON price.route_id = schedules.route_id 
   AND price.agent_id = agents.id
-  WHERE reservations.user_id = ${userId} AND agents.id = schedules.agent_id 
+  WHERE reservations.user_id = ${userId} AND agents.id = schedules.agent_id AND reservations.check_in = ${checkIn}
   ORDER BY
   ${sort.key} ${sort.value ? 'ASC' : 'DESC'} LIMIT ${limit} OFFSET ${(page - 1) * limit}
   
@@ -145,7 +145,7 @@ const getUserReservation = (userId, checkIn, conditions) => {
  * @param {*} idReservation
  * @returns {object} of reservations details
  */
-const reservationSummary = idReservation => {
+const reservationSummary = (idReservation) => {
   return new Promise((resolve, reject) => {
     if (idReservation) {
       const query = `SELECT reservations.user_id as booked_by_userid, reservations.booking_code, userdetails.fullName as booked_by_name, schedules.time as schedule_time, reservations.schedule_id, reservations.user_id_number as passenger_id , 
@@ -168,7 +168,7 @@ const reservationSummary = idReservation => {
   })
 }
 
-const getAllReservationsByAgent = agentId => {
+const getAllReservationsByAgent = (agentId) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT reservations.id as id_reservation, reservations.user_id_number as passenger_id_number, 
     reservations.user_id_type as passenger_id_type, reservations.seat_number, reservations.booking_code, reservations.check_in, 
@@ -186,7 +186,7 @@ const getAllReservationsByAgent = agentId => {
   })
 }
 
-const getAllReservations = conditions => {
+const getAllReservations = (conditions) => {
   const { search, sort, page, perPage } = conditions
   console.log('from model', conditions)
   return new Promise((resolve, reject) => {
@@ -211,7 +211,34 @@ const getAllReservations = conditions => {
   })
 }
 
-const getReservationsById = reservationId => {
+const getMyReservations = (conditions, agentId) => {
+  const { search, sort, page, perPage } = conditions
+  console.log('from model', conditions)
+  return new Promise((resolve, reject) => {
+    const query = `SELECT reservations.id as id_reservation, reservations.check_in, 
+      schedules.id as schedule_id, schedules.time, schedules.date, schedules.route_id, schedules.bus_id,  
+      userdetails.fullName, userdetails.gender, routes.destination, routes.origin
+      FROM reservations JOIN schedules 
+      ON schedules.id = reservations.schedule_id JOIN routes ON schedules.route_id = routes.id 
+      JOIN userdetails 
+      ON userdetails.userId = reservations.user_id WHERE ${search.key} LIKE '%${
+      search.value
+    }%' AND schedules.agent_id = '${agentId}'
+      ORDER BY ${sort.key} ${sort.value ? 'ASC' : 'DESC'}
+      LIMIT ${perPage} OFFSET ${(page - 1) * perPage}
+      `
+    console.log(query)
+    db.query(query, (err, results, field) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.length ? resolve(results) : resolve(false)
+      }
+    })
+  })
+}
+
+const getReservationsById = (reservationId) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT reservations.id as id_reservation, reservations.user_id_number as passenger_id_number, 
     reservations.user_id_type as passenger_id_type, reservations.seat_number, reservations.booking_code, reservations.check_in, 
@@ -229,6 +256,19 @@ const getReservationsById = reservationId => {
   })
 }
 
+const getTotalReservations = () => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT COUNT(*) as total FROM reservations`
+    db.query(query, (err, data) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(data[0].total)
+      }
+    })
+  })
+}
+
 module.exports = {
   insert,
   getUserReservation,
@@ -238,5 +278,7 @@ module.exports = {
   reservationSummary,
   getAllReservationsByAgent,
   getAllReservations,
-  getReservationsById
+  getReservationsById,
+  getMyReservations,
+  getTotalReservations
 }
