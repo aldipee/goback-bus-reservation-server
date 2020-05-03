@@ -1,7 +1,147 @@
 const UserModel = require('../models/User')
+const ReservationModel = require('../models/Reservations')
 const message = require('../utils/message')
 
 module.exports = {
+  singleUserProfile: async (req, res) => {
+    if (!req.user) {
+      res.send({ status: 'Authorization Needed!' })
+    } else {
+      let { show, limit, page, sort, sortBy } = req.query
+      limit = limit || 5
+      page = page || 1
+      const conditions = {
+        page,
+        limit,
+        // Sort by fullName, time, date
+        sort: (sort && sortBy && { key: sortBy, value: sort }) || { key: 'fullName', value: 1 }
+      }
+
+      const { id } = req.params
+      const data = await UserModel.getUserDetails(id)
+      data.avatar = `//${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${data.avatar}`
+      const currentTicket = await ReservationModel.getUserReservation(id, 0, conditions)
+
+      res.status(200).send({
+        status: 'OK',
+        profileData: data,
+        reservationsData: currentTicket
+      })
+    }
+  },
+  userDetail: async (req, res) => {
+    if (!req.user) {
+      res.status.send({ status: 'NEED LOGIN TO ACCESS THIS PAGE' })
+    } else {
+      if (await UserModel.isProfileCompleted(req.params.id)) {
+        let { show, limit, page, sort, sortBy } = req.query
+        limit = limit || 5
+        page = page || 1
+        const conditions = {
+          page,
+          limit,
+          // Sort by fullName, time, date
+          sort: (sort && sortBy && { key: sortBy, value: sort }) || { key: 'fullName', value: 1 }
+        }
+        show = show || 'all'
+        const { userId } = req.user
+        const currentTicket = await ReservationModel.getUserReservation(userId, 0, conditions)
+
+        const data = {
+          status: 'OK',
+          yourReservation: currentTicket
+        }
+
+        res.status(200).send(data)
+      }
+    }
+  },
+
+  userHistory: async (req, res) => {
+    console.log(req.user)
+    if (!req.user) {
+      res.status.send({ status: 'NEED LOGIN TO ACCESS THIS PAGE' })
+    } else {
+      if (await UserModel.isProfileCompleted(req.user.userId)) {
+        let { show, limit, page, sort, sortBy } = req.query
+        limit = limit || 5
+        page = page || 1
+        const conditions = {
+          page,
+          limit,
+          // Sort by fullName, time, date
+          sort: (sort && sortBy && { key: sortBy, value: sort }) || { key: 'fullName', value: 1 }
+        }
+        show = show || 'all'
+        const { userId } = req.user
+        const currentTicket = await ReservationModel.getUserReservation(userId, 0, conditions)
+        const pastTicket = await ReservationModel.getUserReservation(userId, 1, conditions)
+
+        const data = {
+          status: 'OK',
+          yourBooking: currentTicket,
+          history: pastTicket
+        }
+        show === 'booking' && delete data.history
+        show === 'history' && delete data.yourBooking
+        res.status(200).send(data)
+      }
+    }
+  },
+
+  userProfile: async (req, res) => {
+    if (!req.user) {
+      res.status.send({ status: 'NEED LOGIN TO ACCESS THIS PAGE' })
+    } else {
+      if (await UserModel.isProfileCompleted(req.user.userId)) {
+        const { userId } = req.user
+        const data = await UserModel.getUserDetails(userId)
+        data.avatar = `//${process.env.APP_HOST}:${process.env.APP_PORT}${process.env.PUBLIC_URL}users/${data.avatar}`
+        res.status(200).send({
+          status: 'OK',
+          msg: `Welcome back ${data.fullName}`,
+          profileData: data
+        })
+      }
+    }
+  },
+
+  updateUser: async (req, res) => {
+    if (req.user) {
+      try {
+        // Make sure requests exists
+        // const { filename } = req.file
+        console.log(req.file)
+        const { userId } = req.user
+        let { fullName, bod, gender, phoneNumber, address, balance } = req.body
+        // set default balance to 0
+        balance = balance || 0
+        const result = await UserModel.insertUserDetails(
+          userId,
+          fullName,
+          bod,
+          gender,
+          phoneNumber,
+          address,
+          balance
+        )
+        const msg = `Thank you for completed your data ${fullName}, now you can use all of our services`
+        result
+          ? res.status(201).send({
+              status: 'OK',
+              success: true,
+              message: msg
+            })
+          : res.status(400).send({ status: 400, message: 'BAD REQUEST' })
+      } catch (error) {
+        console.log(error)
+        res.send({ status: 'Error, please try again later' })
+      }
+    } else {
+      res.status(403).send({ success: false, message: 'FORBIDEN' })
+    }
+  },
+
   // get All users data
   allData: async (req, res) => {
     // get all data

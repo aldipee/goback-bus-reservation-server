@@ -14,8 +14,9 @@ module.exports = {
       const isUsernameAvaiable = await UsersModel.isUsernameExist(username)
       if (!isUsernameAvaiable) {
         // if username not available, then user can register
-        let req = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-        if (req.test(email)) {
+        let emailCheck = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
+
+        if (emailCheck) {
           try {
             const isRegisterSuccess = await UsersModel.insert(username, password, email, 3)
             const userVerifCode = await UsersModel.getUserDataById(isRegisterSuccess.data.insertId)

@@ -105,5 +105,18 @@ module.exports = {
     } else {
       res.status(401).send({ status: 'FORBIDDEN' })
     }
+  },
+  allBuses: async (req, res) => {
+    if (req.user.userRole === 2 || req.user.userRole === 1) {
+      try {
+        const results = await BusModel.getAllBuses(conditions)
+        result.length
+          ? res.status(200).send({ status: 'OK', data: results })
+          : res.status(200).send({ status: 'OK', data: 'nodata' })
+      } catch (error) {
+        console.log(error)
+        res.status(500).send({ status: 'ERR', error })
+      }
+    }
   }
 }

@@ -15,7 +15,7 @@ const getAllUsersData = (conditions) => {
     // userdetails.bod, userdetails.balance, userdetails.phoneNumber, userdetails.avatar
     // FROM users JOIN userdetails WHERE users.id = userdetails.userId AND  userdetails.fullName LIKE
     // 'si%'`
-    const query = `SELECT users.id as id, users.username, users.email, userdetails.fullName, userdetails.gender,
+    const query = `SELECT users.id as id, users.createAt, users.username, users.email, userdetails.fullName, userdetails.gender,
     userdetails.bod, userdetails.balance, userdetails.phoneNumber, userdetails.avatar
     FROM users JOIN userdetails WHERE users.id = userdetails.userId  AND  ${search.key} LIKE 
     '%${search.value}%' ORDER BY ${sortBy} ${sort ? 'ASC' : 'DESC'}

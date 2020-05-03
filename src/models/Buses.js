@@ -34,7 +34,7 @@ const insert = (name, totalSeat, agentId, createdBy, picture) => {
  * @param {Number} idBuses Id bus as Identifier
  * @returns {Object} of Bus data. [Bus Name, Total Seat, Agent ID, Created By, ID Bus]
  */
-const busDataById = idBuses => {
+const busDataById = (idBuses) => {
   return new Promise((resolve, reject) => {
     const query = `SELECT * FROM buses WHERE id='${idBuses}'`
     db.query(query, (err, results) => {
@@ -75,9 +75,22 @@ const update = (idBuses, busName, totalSeat, agentId, picture) => {
  * @param {Number} AgentId Agent ID as Identifier
  * @returns {Object} of Bus data. [Bus Name, Total Seat, Agent ID, Created By, ID Bus]
  */
-const getBusByAgentId = agentId => {
+const getBusByAgentId = (agentId) => {
   return new Promise((resolve, reject) => {
-    const query = `SELECT * FROM buses WHERE agent_id='${agentId}'`
+    const query = `SELECT agents.name as agentName, buses.police_number, buses.name, buses.total_seat, buses.picture, agents.nickname, agents.logo FROM buses JOIN agents ON buses.agent_id = agents.id WHERE buses.agent_id='${agentId}'`
+    db.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.length ? resolve(results) : resolve(0)
+      }
+    })
+  })
+}
+
+const getAllBuses = (conditions) => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT agents.name as agentName, buses.police_number, buses.name, buses.total_seat, buses.picture, agents.nickname, agents.logo FROM buses JOIN agents ON buses.agent_id = agents.id `
     db.query(query, (err, results) => {
       if (err) {
         reject(err)
@@ -92,5 +105,6 @@ module.exports = {
   insert,
   update,
   busDataById,
-  getBusByAgentId
+  getBusByAgentId,
+  getAllBuses
 }

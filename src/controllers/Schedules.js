@@ -1,6 +1,10 @@
 const SchedulesModel = require('../models/Schedules')
 const ReservationsModel = require('../models/Reservations')
-
+// const redis = require('redis')
+// const client = redis.createClient()
+// client.on('error', (err) => {
+//   console.log('Error ' + err)
+// })
 module.exports = {
   getPrice: async (req, res) => {
     if (req.user.userRole === 2) {
@@ -102,6 +106,7 @@ module.exports = {
   allSchedules: async (req, res) => {
     // Check if there is sessions
     if (req.query.route || (req.query.origin && req.query.destination)) {
+      console.log(req.query)
       try {
         const route = {
           idRoute: req.query.route || 0,

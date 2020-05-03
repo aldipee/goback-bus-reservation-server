@@ -8,4 +8,5 @@ router.post('/token', AuthController.token)
 router.post('/login', AuthController.login)
 router.get('/verify', AuthController.verify)
 router.get('/logout', AuthMiddleware.validAuthToken, AuthController.logout)
+
 module.exports = router

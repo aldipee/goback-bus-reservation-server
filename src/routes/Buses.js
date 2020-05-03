@@ -7,7 +7,7 @@ const multer = require('multer')
 
 const storage = multer.diskStorage({
   destination: 'files/users/',
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`)
   }
 })
@@ -29,5 +29,6 @@ router.patch('/:id', upload.single('picture'), BusController.updateBus)
 router.get('/', BusController.getAllBus)
 router.get('/:id', BusController.getSingleBus)
 router.get('/agent/:id', BusController.all)
+router.get('/all-bus', BusController.allBuses)
 
 module.exports = router

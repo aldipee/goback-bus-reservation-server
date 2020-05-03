@@ -15,6 +15,7 @@ module.exports = {
     try {
       let { limit, sort, search, page, show } = req.query
       limit = parseInt(limit) || 5
+
       page = parseInt(page) || 1
       sort = (sort && { key: sort.key, value: sort.value }) || { key: 'origin', value: 1 }
       search = (search && { key: 'origin', value: search.value }) || { key: 'origin', value: '' }
@@ -44,6 +45,7 @@ module.exports = {
   },
   createRoute: async (req, res) => {
     if (req.user && req.user.userRole === 1) {
+      console.log(req.body, 'SSS')
       if (req.body) {
         const { destination, destinationCode, origin, originCode, distance } = req.body
         const dest = {
