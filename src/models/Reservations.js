@@ -224,7 +224,7 @@ const getMyReservations = (conditions, agentId) => {
       ON userdetails.userId = reservations.user_id WHERE ${search.key} LIKE '%${
       search.value
     }%' AND schedules.agent_id = '${agentId}'
-      ORDER BY ${sort.key} ${sort.value ? 'ASC' : 'DESC'}
+      ORDER BY ${sort.key} ${parseInt(sort.value) ? 'ASC' : 'DESC'}
       LIMIT ${perPage} OFFSET ${(page - 1) * perPage}
       `
     console.log(query)
@@ -233,6 +233,21 @@ const getMyReservations = (conditions, agentId) => {
         reject(err)
       } else {
         results.length ? resolve(results) : resolve(false)
+      }
+    })
+  })
+}
+
+const getTotalAllPassenger = (conditions, agentId) => {
+  const { search } = conditions
+  return new Promise((resolve, reject) => {
+    const query = `SELECT COUNT(*) as total FROM reservations`
+    console.log(query)
+    db.query(query, (err, results, field) => {
+      if (err) {
+        reject(err)
+      } else {
+        results.length ? resolve(results[0]) : resolve(false)
       }
     })
   })
@@ -276,6 +291,7 @@ module.exports = {
   getReservationByRoute,
   getPriceByIdSchedule,
   reservationSummary,
+  getTotalAllPassenger,
   getAllReservationsByAgent,
   getAllReservations,
   getReservationsById,

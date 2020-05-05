@@ -114,6 +114,7 @@ module.exports = {
         console.log(req.file)
         const { userId } = req.user
         let { fullName, bod, gender, phoneNumber, address, balance } = req.body
+        let avatar = (req.file && req.file.filename) || 'default.png'
         // set default balance to 0
         balance = balance || 0
         const result = await UserModel.insertUserDetails(
@@ -123,7 +124,8 @@ module.exports = {
           gender,
           phoneNumber,
           address,
-          balance
+          balance,
+          avatar
         )
         const msg = `Thank you for completed your data ${fullName}, now you can use all of our services`
         result

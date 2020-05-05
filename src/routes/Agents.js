@@ -37,9 +37,9 @@ router.post('/check-in', async (req, res) => {
         console.log(isCheckInDone)
         detailsInfo
           ? res.status(200).send({ status: 'Check-In Completed', detailsInfo })
-          : res.status(400).send({ status: 'CHECK IN FAILED', message: `${bookingCode} not found` })
+          : res.status(200).send({ status: 'CHECK IN FAILED', message: `${bookingCode} not found` })
       } else {
-        res.status(400).send({ status: 'CHECK IN FAILED', message: `${bookingCode} not found` })
+        res.status(200).send({ status: 'CHECK IN FAILED', message: `${bookingCode} not found` })
       }
     } catch (error) {
       console.log(error)

@@ -74,10 +74,14 @@ module.exports = {
         perPage = limit || 5
 
         const conditions = { search, sort, page, perPage }
+        const totalData = await ReservationModel.getTotalAllPassenger(conditions)
         const result = await ReservationModel.getMyReservations(conditions, req.user.agentId)
-        console.log(`from routes`, conditions)
+        conditions.totalData = totalData.total
+        conditions.totalPage = Math.ceil(totalData.total / perPage)
+        delete conditions.search
+        delete conditions.sort
         result
-          ? res.status(200).send({ status: 'OK', data: result })
+          ? res.status(200).send({ status: 'OK', data: result, pageInfo: conditions })
           : res.status(400).send({ status: 401, err: 'BAD REQUEST' })
       } catch (error) {
         res.status(400).send({ status: 401, err: 'BAD REQUEST', error_code: '1101' })

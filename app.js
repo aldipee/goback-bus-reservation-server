@@ -13,11 +13,13 @@ const routesRouter = require('./src/routes/Route')
 const busesRouter = require('./src/routes/Buses')
 const schedulesRouter = require('./src/routes/Schedules')
 const reservationRouter = require('./src/routes/Reservations')
+const topUpRouter = require('./src/routes/TopUp')
 
 // Midleware
 const authMiddleware = require('./src/middleware/Auth')
 const app = express()
 
+app.disable('etag')
 app.use(cors())
 app.use(logger('dev'))
 app.use(express.json())
@@ -34,6 +36,7 @@ app.use('/routes', routesRouter)
 app.use('/bus', authMiddleware.validAuthToken, busesRouter)
 app.use('/schedules', schedulesRouter)
 app.use('/reservations', authMiddleware.validAuthToken, reservationRouter)
+app.use('/topup', authMiddleware.validAuthToken, topUpRouter)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

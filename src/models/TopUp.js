@@ -10,11 +10,11 @@ const db = require('../utils/db')
  * @returns {boolean} Created success will return true, otherwise will return false
  */
 
-const insert = (name, totalSeat, agentId, createdBy, picture) => {
+const insert = (userId, nominal) => {
   return new Promise((resolve, reject) => {
-    if (name && totalSeat && agentId && createdBy) {
+    if (userId && nominal) {
       db.query(
-        `INSERT INTO buses (name, total_seat, agent_id, created_by, picture) VALUES ('${name}','${totalSeat}','${agentId}','${createdBy}', '${picture}')`,
+        `INSERT INTO topup (id_user,nominal) VALUES('${userId}', '${nominal}')`,
         (err, results, field) => {
           if (err) {
             reject(err)
@@ -30,13 +30,13 @@ const insert = (name, totalSeat, agentId, createdBy, picture) => {
 }
 
 /**
- * Bus Data based on ID bus
+ * Get Top Up by id
  * @param {Number} idBuses Id bus as Identifier
  * @returns {Object} of Bus data. [Bus Name, Total Seat, Agent ID, Created By, ID Bus]
  */
-const busDataById = (idBuses) => {
+const topUpDetail = (idTopUp) => {
   return new Promise((resolve, reject) => {
-    const query = `SELECT * FROM buses WHERE id='${idBuses}'`
+    const query = `SELECT * FROM topup WHERE id='${idTopUp}'`
     db.query(query, (err, results) => {
       if (err) {
         reject(err)
@@ -56,10 +56,9 @@ const busDataById = (idBuses) => {
  * @param {Number} agentId From user's sessions
  * @returns {Boolean} If Successfully will return true, otherwise false
  */
-const update = (idBuses, busName, totalSeat, agentId, picture) => {
+const updateStatus = (idTopUp) => {
   return new Promise((resolve, reject) => {
-    const query = `UPDATE buses SET name='${busName}', total_seat='${totalSeat}', picture='${picture}' WHERE id='${idBuses}'
-    AND agent_id = '${agentId}'`
+    const query = `UPDATE topup SET status_trx= 1 WHERE id='${idTopUp}'`
     db.query(query, (err, results, field) => {
       if (err) {
         reject(err)
@@ -70,27 +69,10 @@ const update = (idBuses, busName, totalSeat, agentId, picture) => {
     })
   })
 }
-/**
- * Bus Data based on Agent Id
- * @param {Number} AgentId Agent ID as Identifier
- * @returns {Object} of Bus data. [Bus Name, Total Seat, Agent ID, Created By, ID Bus]
- */
-const getBusByAgentId = (agentId) => {
-  return new Promise((resolve, reject) => {
-    const query = `SELECT buses.id, agents.name as agentName, buses.police_number, buses.name, buses.total_seat, buses.picture, agents.nickname, agents.logo FROM buses JOIN agents ON buses.agent_id = agents.id WHERE buses.agent_id='${agentId}'`
-    db.query(query, (err, results) => {
-      if (err) {
-        reject(err)
-      } else {
-        results.length ? resolve(results) : resolve(0)
-      }
-    })
-  })
-}
 
-const getAllBuses = (conditions) => {
+const getAllTopup = (conditions) => {
   return new Promise((resolve, reject) => {
-    const query = `SELECT agents.name as agentName, buses.police_number, buses.name, buses.total_seat, buses.picture, agents.nickname, agents.logo FROM buses JOIN agents ON buses.agent_id = agents.id `
+    const query = `SELECT topup.id,topup.nominal, topup.id_user, topup.status_trx, topup.create_at, topup.update_at, userdetails.fullName, userdetails.avatar,userdetails.balance  FROM topup JOIN userdetails ON topup.id_user = userdetails.userId`
     db.query(query, (err, results) => {
       if (err) {
         reject(err)
@@ -103,8 +85,7 @@ const getAllBuses = (conditions) => {
 
 module.exports = {
   insert,
-  update,
-  busDataById,
-  getBusByAgentId,
-  getAllBuses
+  getAllTopup,
+  topUpDetail,
+  updateStatus
 }

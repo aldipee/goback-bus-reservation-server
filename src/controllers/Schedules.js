@@ -157,9 +157,6 @@ module.exports = {
             // wait to all promises complete
             const promiseDone = Promise.all(promisess)
             return promiseDone
-          } else {
-            // if schedules unavaiable
-            res.status(200).send({ status: 'OK', message: 'Bus not found, no schedules for that route' })
           }
           // Wait until all promises resolve retrive the data form seats
         }
@@ -174,7 +171,7 @@ module.exports = {
                 totalPage: Math.ceil(totalResults / limit),
                 data
               })
-            : res.status(201).send({ status: 'OK', message: 'Bus not found' })
+            : res.status(201).send({ status: 'NTFOUND', message: 'Bus not found' })
         })
       } catch (error) {
         console.log(error)
