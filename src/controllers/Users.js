@@ -106,6 +106,30 @@ module.exports = {
     }
   },
 
+  updateUserPicture: async (req, res) => {
+    console.log(req.file)
+    try {
+      // Make sure requests exists
+      // const { filename } = req.file
+      console.log(req.file)
+      const { userId } = req.user
+
+      let avatar = (req.file && req.file.filename) || 'default.png'
+
+      const result = await UserModel.updateUserPicture(userId, avatar)
+      const msg = `Avatar updated`
+      result
+        ? res.status(201).send({
+            status: 'OK',
+            success: true,
+            message: msg
+          })
+        : res.status(400).send({ status: 400, message: 'BAD REQUEST' })
+    } catch (error) {
+      console.log(error)
+      res.send({ status: 'Error, please try again later' })
+    }
+  },
   updateUser: async (req, res) => {
     if (req.user) {
       try {

@@ -225,6 +225,36 @@ const insertUserDetails = (userId, fullName, bod, gender, phoneNumber, fullAddre
   })
 }
 
+const updateUserDetails = (userId, name, phoneNUmber, address) => {
+  return new Promise((resolve, reject) => {
+    if (userId) {
+      const query = `UPDATE usersdetails SET fullName ='${name}', phoneNumber = '${phoneNUmber}', fullAddress = '${address}' WHERE
+      userId = ${userId}`
+      db.query(query, (err, results) => {
+        results.changedRows ? resolve(true) : resolve(false)
+      })
+    } else {
+      reject(new Error('Incorrect parameter for isProfileCompleted method'))
+    }
+  })
+}
+
+const updateUserPicture = (userId, pictureName) => {
+  return new Promise((resolve, reject) => {
+    console.log(userId, 'FUSS')
+    if (userId) {
+      const query = `UPDATE userdetails SET avatar ='${pictureName}' WHERE userId = ${userId}`
+      db.query(query, (err, results) => {
+        console.log(results, 'FU')
+        console.log(err)
+        results.changedRows ? resolve(true) : resolve(false)
+      })
+    } else {
+      reject(new Error('Incorrect parameter for isProfileCompleted method'))
+    }
+  })
+}
+
 const isProfileCompleted = (userId) => {
   return new Promise((resolve, reject) => {
     if (userId) {
@@ -271,5 +301,7 @@ module.exports = {
   isProfileCompleted,
   getUserDetails,
   getUserDataById,
-  totalUsers
+  totalUsers,
+  updateUserDetails,
+  updateUserPicture
 }

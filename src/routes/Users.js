@@ -24,6 +24,7 @@ const upload = multer({
 router.get('/', UserController.allData)
 router.post('/update', upload.single('avatart'), UserController.updateUser)
 router.patch('/:id', UserController.delete)
+router.put('/update-picture', upload.single('avatart'), UserController.updateUserPicture)
 router.delete('/:id', UserController.delete)
 router.get('/profile', UserController.userProfile)
 router.get('/details/:id', UserController.userDetail)

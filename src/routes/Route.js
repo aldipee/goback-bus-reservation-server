@@ -12,6 +12,7 @@ router.get('/', RouteController.allRoutes)
 router.post('/', authMiddleware.validAuthToken, RouteController.createRoute)
 // Update route
 router.patch('/:idRoute', authMiddleware.validAuthToken, RouteController.updateRoute)
+
 // delete Route
 router.delete('/:idRoute', authMiddleware.validAuthToken, RouteController.deleteRoute)
 
