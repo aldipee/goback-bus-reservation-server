@@ -120,7 +120,7 @@ const insert = (username, password, email, role = 3) => {
   return new Promise((resolve, reject) => {
     // Insert into tabel 'users
     db.query(
-      `INSERT INTO users (username,password,email,role_id, verified_code) VALUES('${username}', '${encryptPassword}', '${email}', '${role}','${uuid()}')`,
+      `INSERT INTO users (username,password,email,role_id, verified_code, is_verified) VALUES('${username}', '${encryptPassword}', '${email}', '${role}','${uuid()}', 1)`,
       (err, results, fields) => {
         if (!err) {
           resolve({ success: true, data: results })

@@ -25,12 +25,15 @@ module.exports = {
               ? res.status(201).send({ isRegisterSuccess, verifyLink })
               : res.status({ success: false, msg: 'Error' })
           } catch (error) {
+            console.log(error)
             res.status(401).send({ status: 'ERR', error })
           }
         } else {
+          console.log('AASS')
           res.status(401).send({ success: false, message: 'Email format is invalid', error_code: '1001' })
         }
       } else {
+        console.log('AASssssssS')
         res
           .status(401)
           .send({ success: false, status: 'FAILED', message: 'username already exist', error_code: '1002' })
